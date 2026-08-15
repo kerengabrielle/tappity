@@ -1,0 +1,3354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#10131c" />
+<title>Tappity V2</title>
+
+<style>
+:root{
+  --bg:#10131c;
+  --panel:#1a2030;
+  --panel-2:#242b3e;
+  --text:#f7f7fb;
+  --muted:#abb3c8;
+  --accent:#ffd84d;
+  --accent-2:#ff8f5a;
+  --danger:#ff5757;
+  --good:#68d391;
+  --shadow:0 14px 35px rgba(0,0,0,.28);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  background:
+    radial-gradient(circle at top,#1b2234 0,#10131c 48%,#0a0c12 100%);
+  color:var(--text);
+  font-family:
+    Inter,
+    ui-rounded,
+    "SF Pro Rounded",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+button,input{font:inherit}
+
+button{
+  touch-action:manipulation;
+}
+
+.screen{
+  display:none;
+  min-height:100dvh;
+  width:100%;
+  padding:
+    max(18px,env(safe-area-inset-top))
+    max(18px,env(safe-area-inset-right))
+    max(18px,env(safe-area-inset-bottom))
+    max(18px,env(safe-area-inset-left));
+}
+
+.screen.active{
+  display:flex;
+}
+
+#mainScreen,
+#rulesScreen,
+#categoriesScreen{
+  align-items:center;
+  justify-content:center;
+}
+
+.card{
+  width:min(760px,100%);
+  background:rgba(26,32,48,.96);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  padding:clamp(22px,5vw,40px);
+  box-shadow:var(--shadow);
+}
+
+.logo{
+  font-weight:1000;
+  letter-spacing:.16em;
+  text-align:center;
+  font-size:clamp(2.5rem,8vw,5.2rem);
+  margin:0;
+  color:var(--accent);
+  text-shadow:0 6px 24px rgba(255,216,77,.18);
+}
+
+.subtitle{
+  text-align:center;
+  color:var(--muted);
+  margin:8px 0 30px;
+}
+
+.timer-choice{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:16px 0 26px;
+}
+
+.timer-choice label,
+.mode-choice label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--panel-2);
+  padding:12px 16px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:800;
+}
+
+input[type="radio"],
+input[type="checkbox"]{
+  accent-color:var(--accent);
+  width:18px;
+  height:18px;
+}
+
+.menu-buttons{
+  display:grid;
+  gap:12px;
+}
+
+.btn{
+  border:0;
+  border-radius:16px;
+  padding:15px 18px;
+  font-weight:900;
+  color:var(--text);
+  background:var(--panel-2);
+  cursor:pointer;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06);
+  transition:
+    transform .12s ease,
+    filter .12s ease,
+    background .12s ease;
+}
+
+.btn:active{
+  transform:scale(.98);
+}
+
+.btn.primary{
+  background:var(--accent);
+  color:#171717;
+  font-size:1.08rem;
+}
+
+.btn.danger{
+  background:var(--danger);
+  color:white;
+}
+
+.btn.ghost{
+  background:transparent;
+  border:1px solid rgba(255,255,255,.12);
+}
+
+.section-title{
+  margin:0 0 18px;
+  font-size:clamp(1.8rem,5vw,2.6rem);
+}
+
+.back-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:22px;
+}
+
+.mode-choice{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+
+.category-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+  max-height:48dvh;
+  overflow:auto;
+  padding-right:4px;
+}
+
+.category-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:var(--panel-2);
+  padding:12px;
+  border-radius:14px;
+  min-width:0;
+}
+
+.category-item span{
+  overflow-wrap:anywhere;
+}
+
+.category-item.custom{
+  justify-content:space-between;
+}
+
+.category-item .left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.remove-btn{
+  border:0;
+  background:transparent;
+  color:#ff9090;
+  font-weight:900;
+  font-size:1.2rem;
+  cursor:pointer;
+  padding:4px 8px;
+}
+
+.add-custom{
+  display:flex;
+  gap:10px;
+  margin-top:18px;
+}
+
+.add-custom input{
+  flex:1;
+  min-width:0;
+  background:#111725;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:14px;
+  padding:14px;
+  color:white;
+  outline:none;
+}
+
+.help{
+  color:var(--muted);
+  font-size:.92rem;
+  line-height:1.5;
+}
+
+.error{
+  color:#ff9d9d;
+  min-height:1.3em;
+  margin-top:10px;
+  font-weight:750;
+}
+
+.rules{
+  line-height:1.65;
+  color:#e6e8ef;
+}
+
+.rules ol{
+  padding-left:1.3rem;
+}
+
+.rules li{
+  margin:.55rem 0;
+}
+
+
+/* GAME */
+
+#gameScreen{
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:14px;
+  overflow:auto;
+}
+
+.game-top{
+  width:min(980px,100%);
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:12px;
+  align-items:start;
+}
+
+.category-box{
+  background:rgba(26,32,48,.92);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:16px 18px;
+  box-shadow:var(--shadow);
+}
+
+.category-label{
+  font-size:.75rem;
+  letter-spacing:.14em;
+  color:var(--muted);
+  font-weight:900;
+}
+
+#categoryName{
+  font-size:clamp(1.35rem,4vw,2.25rem);
+  font-weight:1000;
+  margin-top:3px;
+  overflow-wrap:anywhere;
+}
+
+.pause-btn{
+  min-width:112px;
+}
+
+.board-wrap{
+  width:min(920px,100%);
+  display:grid;
+  place-items:center;
+  flex:1;
+}
+
+.board{
+  width:min(92vw,730px);
+  aspect-ratio:1/1;
+  position:relative;
+  margin:auto;
+}
+
+/* V2: BIGGER LETTER BUTTONS */
+
+.letter{
+  position:absolute;
+  left:50%;
+  top:50%;
+
+  width:clamp(58px,9vw,82px);
+  height:clamp(58px,9vw,82px);
+
+  margin-left:calc(clamp(58px,9vw,82px)/-2);
+  margin-top:calc(clamp(58px,9vw,82px)/-2);
+
+  border:0;
+  border-radius:50%;
+
+  background:#f2f4f8;
+  color:#131722;
+
+  font-weight:1000;
+  font-size:clamp(1.1rem,3vw,1.55rem);
+
+  box-shadow:
+    0 7px 16px rgba(0,0,0,.3),
+    inset 0 -4px 0 rgba(0,0,0,.12);
+
+  cursor:pointer;
+
+  transform:
+    rotate(var(--angle))
+    translateY(calc(var(--radius) * -1))
+    rotate(calc(var(--angle) * -1));
+
+  transition:
+    filter .15s ease,
+    opacity .15s ease,
+    scale .15s ease;
+}
+
+.letter:active:not(:disabled){
+  scale:.92;
+}
+
+.letter.used{
+  background:#3a4152;
+  color:#81899d;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.05);
+  opacity:.65;
+}
+
+.letter:disabled{
+  cursor:default;
+}
+
+.center-buzzer{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+
+  width:clamp(145px,29vw,230px);
+  aspect-ratio:1/1;
+
+  border-radius:50%;
+
+  border:
+    clamp(8px,1.8vw,14px)
+    solid #702d20;
+
+  background:
+    radial-gradient(
+      circle at 38% 30%,
+      #ffca70 0,
+      #ff8f5a 38%,
+      #e25433 76%,
+      #b63c27 100%
+    );
+
+  box-shadow:
+    0 16px 0 #69281d,
+    0 24px 32px rgba(0,0,0,.45),
+    inset 0 8px 18px rgba(255,255,255,.28);
+
+  color:white;
+  font-weight:1000;
+  font-size:clamp(2.5rem,9vw,5.6rem);
+
+  display:grid;
+  place-items:center;
+
+  text-align:center;
+  line-height:.93;
+  padding:12px;
+
+  cursor:pointer;
+
+  text-shadow:
+    0 3px 2px rgba(0,0,0,.18);
+
+  z-index:4;
+}
+
+.center-buzzer:active:not(:disabled){
+  transform:
+    translate(-50%,calc(-50% + 7px));
+
+  box-shadow:
+    0 9px 0 #69281d,
+    0 17px 25px rgba(0,0,0,.42),
+    inset 0 8px 18px rgba(255,255,255,.28);
+}
+
+.center-buzzer.small-text{
+  font-size:clamp(1.65rem,5.5vw,3rem);
+}
+
+.center-buzzer:disabled{
+  cursor:default;
+  filter:saturate(.72);
+}
+
+.game-status{
+  text-align:center;
+  color:var(--muted);
+  font-weight:800;
+  min-height:1.4em;
+}
+
+.round-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  min-height:52px;
+}
+
+.hidden{
+  display:none!important;
+}
+
+
+/* COUNTDOWN OVERLAY */
+
+.count-overlay{
+  position:fixed;
+  inset:0;
+
+  background:rgba(8,10,15,.76);
+  backdrop-filter:blur(7px);
+
+  display:grid;
+  place-items:center;
+
+  z-index:40;
+}
+
+.count-overlay span{
+  font-size:min(34vw,12rem);
+  font-weight:1000;
+  color:var(--accent);
+
+  animation:
+    pop .65s ease both;
+}
+
+@keyframes pop{
+  0%{
+    transform:scale(.55);
+    opacity:0;
+  }
+
+  45%{
+    transform:scale(1.12);
+    opacity:1;
+  }
+
+  100%{
+    transform:scale(1);
+    opacity:1;
+  }
+}
+
+
+/* PAUSE */
+
+.modal{
+  position:fixed;
+  inset:0;
+
+  background:rgba(4,6,10,.78);
+  backdrop-filter:blur(9px);
+
+  display:grid;
+  place-items:center;
+
+  padding:18px;
+
+  z-index:50;
+}
+
+.pause-card{
+  width:min(760px,100%);
+
+  background:var(--panel);
+  border-radius:26px;
+
+  padding:24px;
+
+  box-shadow:var(--shadow);
+
+  border:
+    1px solid rgba(255,255,255,.09);
+
+  display:grid;
+  grid-template-columns:1fr 1fr;
+
+  gap:24px;
+}
+
+.pause-menu h2{
+  font-size:2rem;
+  margin:0 0 16px;
+}
+
+.pause-menu .menu-buttons{
+  gap:10px;
+}
+
+.audio-panel{
+  background:#111725;
+
+  border-radius:20px;
+
+  padding:18px;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+
+  gap:22px;
+}
+
+.audio-row{
+  display:grid;
+  grid-template-columns:48px 1fr;
+
+  gap:12px;
+
+  align-items:center;
+}
+
+.audio-icon{
+  border:0;
+
+  width:48px;
+  height:48px;
+
+  border-radius:14px;
+
+  background:var(--panel-2);
+
+  font-size:1.35rem;
+
+  cursor:pointer;
+
+  color:white;
+}
+
+.audio-row label{
+  font-size:.82rem;
+  color:var(--muted);
+  font-weight:900;
+
+  display:block;
+
+  margin-bottom:7px;
+}
+
+input[type="range"]{
+  width:100%;
+  accent-color:var(--accent);
+}
+
+.confirm-card{
+  width:min(430px,100%);
+
+  background:var(--panel);
+
+  padding:24px;
+
+  border-radius:24px;
+
+  box-shadow:var(--shadow);
+
+  text-align:center;
+}
+
+.confirm-actions{
+  display:flex;
+  gap:10px;
+
+  margin-top:18px;
+}
+
+.confirm-actions .btn{
+  flex:1;
+}
+
+
+@media(max-width:700px){
+
+  .category-list{
+    grid-template-columns:1fr;
+    max-height:50dvh;
+  }
+
+  .pause-card{
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  .game-top{
+    grid-template-columns:1fr auto;
+  }
+
+  .board{
+    width:min(98vw,670px);
+  }
+
+  .letter{
+    --radius:min(41vw,275px)!important;
+  }
+
+}
+
+
+@media(max-width:430px){
+
+  .screen{
+    padding-left:8px;
+    padding-right:8px;
+  }
+
+  .game-top{
+    gap:8px;
+  }
+
+  .category-box{
+    padding:12px 14px;
+  }
+
+  .pause-btn{
+    min-width:88px;
+    padding:13px 11px;
+  }
+
+  .board{
+    width:98vw;
+  }
+
+  .letter{
+    width:48px;
+    height:48px;
+
+    margin-left:-24px;
+    margin-top:-24px;
+
+    font-size:1.05rem;
+
+    --radius:43vw!important;
+  }
+
+  .center-buzzer{
+    width:132px;
+    border-width:8px;
+  }
+
+}
+
+
+@media(max-height:720px) and (orientation:landscape){
+
+  #gameScreen{
+    padding-top:8px;
+    gap:6px;
+  }
+
+  .game-top{
+    width:min(840px,100%);
+  }
+
+  .category-box{
+    padding:9px 14px;
+  }
+
+  #categoryName{
+    font-size:1.2rem;
+  }
+
+  .board{
+    width:min(82vh,650px);
+  }
+
+  .letter{
+    width:48px;
+    height:48px;
+
+    margin-left:-24px;
+    margin-top:-24px;
+
+    --radius:min(35vh,265px)!important;
+  }
+
+  .center-buzzer{
+    width:min(28vh,170px);
+  }
+
+  .game-status{
+    font-size:.85rem;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<section id="mainScreen" class="screen active">
+
+  <div class="card">
+
+    <h1 class="logo">TAPPITY!</h1>
+
+    <p class="subtitle">
+      A quick-fire category game
+    </p>
+
+    <div style="text-align:center;font-weight:900">
+      TURN TIMER
+    </div>
+
+    <div
+      class="timer-choice"
+      id="timerChoices"
+    >
+
+      <label>
+        <input
+          type="radio"
+          name="timer"
+          value="5"
+        >
+        5 sec
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="timer"
+          value="10"
+          checked
+        >
+        10 sec
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="timer"
+          value="15"
+        >
+        15 sec
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="timer"
+          value="20"
+        >
+        20 sec
+      </label>
+
+    </div>
+
+    <div class="menu-buttons">
+
+      <button
+        class="btn primary"
+        id="playBtn"
+      >
+        PLAY
+      </button>
+
+      <button
+        class="btn"
+        id="categoriesBtn"
+      >
+        CATEGORIES
+      </button>
+
+      <button
+        class="btn"
+        id="rulesBtn"
+      >
+        RULES
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section
+  id="categoriesScreen"
+  class="screen"
+>
+
+  <div class="card">
+
+    <div class="back-row">
+
+      <h2
+        class="section-title"
+        style="margin:0"
+      >
+        Categories
+      </h2>
+
+      <button
+        class="btn ghost"
+        id="categoriesBack"
+      >
+        ← Back
+      </button>
+
+    </div>
+
+    <div class="mode-choice">
+
+      <label>
+        <input
+          type="radio"
+          name="categoryMode"
+          value="all"
+          checked
+        >
+        All Categories
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="categoryMode"
+          value="choose"
+        >
+        Choose Categories
+      </label>
+
+    </div>
+
+    <p class="help">
+      Opening this screen starts with all categories selected.
+      Choose “Choose Categories” to clear the list, then tick
+      only the categories you want for your next game.
+    </p>
+
+    <div
+      id="categoryList"
+      class="category-list"
+    ></div>
+
+    <div class="add-custom">
+
+      <input
+        id="customCategoryInput"
+        maxlength="70"
+        placeholder="Add a custom category…"
+      />
+
+      <button
+        class="btn primary"
+        id="addCustomBtn"
+      >
+        ADD
+      </button>
+
+    </div>
+
+    <div
+      id="categoryError"
+      class="error"
+    ></div>
+
+  </div>
+
+</section>
+
+
+<section
+  id="rulesScreen"
+  class="screen"
+>
+
+  <div class="card">
+
+    <div class="back-row">
+
+      <h2
+        class="section-title"
+        style="margin:0"
+      >
+        Rules
+      </h2>
+
+      <button
+        class="btn ghost"
+        id="rulesBack"
+      >
+        ← Back
+      </button>
+
+    </div>
+
+    <div class="rules">
+
+      <ol>
+
+        <li>
+          A category is chosen at random.
+          Press <strong>START</strong>,
+          then wait for 3, 2, 1, GO!
+        </li>
+
+        <li>
+          Say an answer that fits the category,
+          then tap the letter your answer starts with.
+        </li>
+
+        <li>
+          Press the middle buzzer to reset the timer
+          for the next player.
+        </li>
+
+        <li>
+          A used letter cannot be used again until
+          every letter A–Z has been used.
+        </li>
+
+        <li>
+          Once all 26 letters are used,
+          press the middle buzzer as normal.
+          The full alphabet becomes available again
+          for the next player.
+        </li>
+
+        <li>
+          The round only ends when somebody runs out of time.
+          When the timer hits zero,
+          it’s <strong>TIME’S UP!</strong>
+        </li>
+
+      </ol>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section
+  id="gameScreen"
+  class="screen"
+>
+
+  <div class="game-top">
+
+    <div class="category-box">
+
+      <div class="category-label">
+        CATEGORY
+      </div>
+
+      <div id="categoryName">
+        Animals
+      </div>
+
+    </div>
+
+    <button
+      class="btn pause-btn"
+      id="pauseBtn"
+    >
+      Ⅱ PAUSE
+    </button>
+
+  </div>
+
+
+  <div class="board-wrap">
+
+    <div
+      class="board"
+      id="board"
+    >
+
+      <button
+        id="centerBuzzer"
+        class="center-buzzer small-text"
+      >
+        START
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="gameStatus"
+    class="game-status"
+  >
+    Press START when everyone is ready.
+  </div>
+
+
+  <div class="round-actions">
+
+    <button
+      id="newRoundBtn"
+      class="btn primary hidden"
+    >
+      NEW ROUND
+    </button>
+
+  </div>
+
+</section>
+
+
+<div
+  id="countOverlay"
+  class="count-overlay hidden"
+>
+
+  <span id="countText">
+    3
+  </span>
+
+</div>
+
+
+<div
+  id="pauseModal"
+  class="modal hidden"
+>
+
+  <div class="pause-card">
+
+    <div class="pause-menu">
+
+      <h2>
+        Paused
+      </h2>
+
+      <div class="menu-buttons">
+
+        <button
+          class="btn primary"
+          id="resumeBtn"
+        >
+          RESUME
+        </button>
+
+        <button
+          class="btn"
+          id="resetBtn"
+        >
+          RESET
+        </button>
+
+        <button
+          class="btn danger"
+          id="mainMenuBtn"
+        >
+          RETURN TO MAIN MENU
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="audio-panel">
+
+      <div class="audio-row">
+
+        <button
+          class="audio-icon"
+          id="sfxMuteBtn"
+          aria-label="Mute sound effects"
+        >
+          🔊
+        </button>
+
+        <div>
+
+          <label for="sfxSlider">
+            SFX
+          </label>
+
+          <input
+            id="sfxSlider"
+            type="range"
+            min="0"
+            max="100"
+            value="80"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="audio-row">
+
+        <button
+          class="audio-icon"
+          id="musicMuteBtn"
+          aria-label="Mute music"
+        >
+          🎵
+        </button>
+
+        <div>
+
+          <label for="musicSlider">
+            MUSIC
+          </label>
+
+          <input
+            id="musicSlider"
+            type="range"
+            min="0"
+            max="100"
+            value="25"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div
+  id="confirmModal"
+  class="modal hidden"
+>
+
+  <div class="confirm-card">
+
+    <h3
+      id="confirmTitle"
+      style="font-size:1.5rem;margin-top:0"
+    >
+      Are you sure?
+    </h3>
+
+    <p
+      id="confirmText"
+      class="help"
+    ></p>
+
+    <div class="confirm-actions">
+
+      <button
+        class="btn ghost"
+        id="confirmCancel"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="btn danger"
+        id="confirmYes"
+      >
+        Yes
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const DEFAULT_CATEGORIES = [
+
+  "Animals",
+  "Beverages",
+  "Books",
+  "Brands",
+  "Cities",
+  "Colors",
+  "Countries",
+  "Fictional Characters",
+  "Food",
+  "Fruits & Vegetables",
+  "Historical Figures",
+  "Hollywood Actors",
+  "Hollywood Actresses",
+  "Movies (Animation)",
+  "Movies (Chick Flicks)",
+  "Movies (Franchises)",
+  "Musical Artists",
+  "Plays & Musicals",
+  "School Subjects",
+  "TV Shows"
+
+];
+
+
+const $ = (id) =>
+  document.getElementById(id);
+
+
+const screens = [
+  "mainScreen",
+  "categoriesScreen",
+  "rulesScreen",
+  "gameScreen"
+];
+
+
+let customCategories =
+  JSON.parse(
+    localStorage.getItem(
+      "tappityCustomCategories"
+    ) || "[]"
+  );
+
+
+let selectedCategories = [
+  ...DEFAULT_CATEGORIES,
+  ...customCategories
+];
+
+
+let categoryMode = "all";
+
+let timerLength = 10;
+
+let currentCategory = "";
+
+let usedLetters =
+  new Set();
+
+let alphabetExhausted =
+  false;
+
+let gameState =
+  "ready";
+
+let timeRemaining =
+  timerLength;
+
+let timerRAF = null;
+
+let timerEnd = 0;
+
+let pausedRemainingMs = 0;
+
+let lastTickNumber = null;
+
+let previousCategory = null;
+
+let confirmAction = null;
+
+
+/* AUDIO */
+
+let audioCtx = null;
+
+let masterSfx = null;
+
+let masterMusic = null;
+
+let musicTimer = null;
+
+let musicStep = 0;
+
+
+let sfxVolume =
+  Number(
+    localStorage.getItem(
+      "tappitySfxVolume"
+    ) ?? 80
+  );
+
+
+let musicVolume =
+  Number(
+    localStorage.getItem(
+      "tappityMusicVolume"
+    ) ?? 25
+  );
+
+
+let sfxMuted =
+  localStorage.getItem(
+    "tappitySfxMuted"
+  ) === "true";
+
+
+let musicMuted =
+  localStorage.getItem(
+    "tappityMusicMuted"
+  ) === "true";
+
+
+let lastSfxNonZero =
+  sfxVolume || 80;
+
+
+let lastMusicNonZero =
+  musicVolume || 25;
+
+
+function initAudio(){
+
+  if(audioCtx){
+    return;
+  }
+
+  const Ctx =
+    window.AudioContext ||
+    window.webkitAudioContext;
+
+  if(!Ctx){
+    return;
+  }
+
+  audioCtx =
+    new Ctx();
+
+  masterSfx =
+    audioCtx.createGain();
+
+  masterMusic =
+    audioCtx.createGain();
+
+  masterSfx.connect(
+    audioCtx.destination
+  );
+
+  masterMusic.connect(
+    audioCtx.destination
+  );
+
+  applyAudioLevels();
+
+}
+
+
+function ensureAudio(){
+
+  initAudio();
+
+  if(
+    audioCtx?.state ===
+    "suspended"
+  ){
+    audioCtx.resume();
+  }
+
+  startMusic();
+
+}
+
+
+function applyAudioLevels(){
+
+  if(!audioCtx){
+    return;
+  }
+
+  masterSfx.gain
+    .setTargetAtTime(
+      sfxMuted
+        ? 0
+        : sfxVolume / 100,
+      audioCtx.currentTime,
+      .01
+    );
+
+
+  masterMusic.gain
+    .setTargetAtTime(
+      musicMuted
+        ? 0
+        : (musicVolume / 100) * .20,
+      audioCtx.currentTime,
+      .01
+    );
+
+
+  $("sfxMuteBtn").textContent =
+    sfxMuted ||
+    sfxVolume === 0
+      ? "🔇"
+      : "🔊";
+
+
+  $("musicMuteBtn").textContent =
+    musicMuted ||
+    musicVolume === 0
+      ? "🔇"
+      : "🎵";
+
+}
+
+
+function tone(
+  freq,
+  duration = .06,
+  type = "square",
+  gain = .16,
+  destination = masterSfx,
+  when = 0
+){
+
+  if(
+    !audioCtx ||
+    !destination
+  ){
+    return;
+  }
+
+
+  const t =
+    audioCtx.currentTime +
+    when;
+
+
+  const oscillator =
+    audioCtx.createOscillator();
+
+
+  const gainNode =
+    audioCtx.createGain();
+
+
+  oscillator.type =
+    type;
+
+
+  oscillator.frequency
+    .setValueAtTime(
+      freq,
+      t
+    );
+
+
+  gainNode.gain
+    .setValueAtTime(
+      .0001,
+      t
+    );
+
+
+  gainNode.gain
+    .exponentialRampToValueAtTime(
+      Math.max(
+        .0002,
+        gain
+      ),
+      t + .008
+    );
+
+
+  gainNode.gain
+    .exponentialRampToValueAtTime(
+      .0001,
+      t + duration
+    );
+
+
+  oscillator.connect(
+    gainNode
+  );
+
+
+  gainNode.connect(
+    destination
+  );
+
+
+  oscillator.start(t);
+
+
+  oscillator.stop(
+    t +
+    duration +
+    .02
+  );
+
+}
+
+
+function tickSound(){
+
+  tone(
+    1050,
+    .045,
+    "square",
+    .09
+  );
+
+}
+
+
+function buttonSound(){
+
+  tone(
+    620,
+    .055,
+    "sine",
+    .075
+  );
+
+}
+
+
+function buzzSound(){
+
+  if(!audioCtx){
+    return;
+  }
+
+  tone(
+    155,
+    .52,
+    "sawtooth",
+    .25
+  );
+
+  tone(
+    115,
+    .52,
+    "square",
+    .12
+  );
+
+}
+
+
+function startMusic(){
+
+  if(
+    !audioCtx ||
+    musicTimer
+  ){
+    return;
+  }
+
+
+  const notes = [
+    261.63,
+    329.63,
+    392,
+    329.63,
+    293.66,
+    349.23,
+    440,
+    349.23
+  ];
+
+
+  musicTimer =
+    setInterval(
+      () => {
+
+        if(
+          !audioCtx ||
+          musicMuted ||
+          musicVolume === 0
+        ){
+          return;
+        }
+
+
+        tone(
+          notes[
+            musicStep %
+            notes.length
+          ],
+          .42,
+          "sine",
+          .06,
+          masterMusic
+        );
+
+
+        if(
+          musicStep %
+          2 ===
+          0
+        ){
+
+          tone(
+            notes[
+              musicStep %
+              notes.length
+            ] / 2,
+            .58,
+            "triangle",
+            .025,
+            masterMusic
+          );
+
+        }
+
+
+        musicStep++;
+
+      },
+      520
+    );
+
+}
+
+
+$("sfxSlider").value =
+  sfxVolume;
+
+
+$("musicSlider").value =
+  musicVolume;
+
+
+function saveAudio(){
+
+  localStorage.setItem(
+    "tappitySfxVolume",
+    sfxVolume
+  );
+
+  localStorage.setItem(
+    "tappityMusicVolume",
+    musicVolume
+  );
+
+  localStorage.setItem(
+    "tappitySfxMuted",
+    sfxMuted
+  );
+
+  localStorage.setItem(
+    "tappityMusicMuted",
+    musicMuted
+  );
+
+}
+
+
+$("sfxSlider")
+  .addEventListener(
+    "input",
+    (event) => {
+
+      sfxVolume =
+        Number(
+          event.target.value
+        );
+
+
+      if(
+        sfxVolume >
+        0
+      ){
+
+        lastSfxNonZero =
+          sfxVolume;
+
+        sfxMuted =
+          false;
+
+      }
+
+
+      applyAudioLevels();
+      saveAudio();
+
+    }
+  );
+
+
+$("musicSlider")
+  .addEventListener(
+    "input",
+    (event) => {
+
+      musicVolume =
+        Number(
+          event.target.value
+        );
+
+
+      if(
+        musicVolume >
+        0
+      ){
+
+        lastMusicNonZero =
+          musicVolume;
+
+        musicMuted =
+          false;
+
+      }
+
+
+      applyAudioLevels();
+      saveAudio();
+
+    }
+  );
+
+
+$("sfxMuteBtn").onclick =
+  () => {
+
+    ensureAudio();
+
+    sfxMuted =
+      !sfxMuted;
+
+
+    if(
+      !sfxMuted &&
+      sfxVolume === 0
+    ){
+
+      sfxVolume =
+        lastSfxNonZero;
+
+      $("sfxSlider").value =
+        sfxVolume;
+
+    }
+
+
+    applyAudioLevels();
+    saveAudio();
+
+  };
+
+
+$("musicMuteBtn").onclick =
+  () => {
+
+    ensureAudio();
+
+    musicMuted =
+      !musicMuted;
+
+
+    if(
+      !musicMuted &&
+      musicVolume === 0
+    ){
+
+      musicVolume =
+        lastMusicNonZero;
+
+      $("musicSlider").value =
+        musicVolume;
+
+    }
+
+
+    applyAudioLevels();
+    saveAudio();
+
+  };
+
+
+/* NAVIGATION */
+
+function showScreen(id){
+
+  screens.forEach(
+    (screen) => {
+
+      $(screen)
+        .classList
+        .toggle(
+          "active",
+          screen === id
+        );
+
+    }
+  );
+
+}
+
+
+$("rulesBtn").onclick =
+  () => {
+
+    buttonSound();
+
+    showScreen(
+      "rulesScreen"
+    );
+
+  };
+
+
+$("rulesBack").onclick =
+  () => {
+
+    buttonSound();
+
+    showScreen(
+      "mainScreen"
+    );
+
+  };
+
+
+/* CATEGORIES */
+
+function allCategories(){
+
+  return [
+    ...DEFAULT_CATEGORIES,
+    ...customCategories
+  ];
+
+}
+
+
+function openCategories(){
+
+  buttonSound();
+
+  categoryMode =
+    "all";
+
+  selectedCategories =
+    allCategories();
+
+
+  document.querySelector(
+    'input[name="categoryMode"][value="all"]'
+  ).checked = true;
+
+
+  renderCategories();
+
+
+  $("categoryError")
+    .textContent = "";
+
+
+  showScreen(
+    "categoriesScreen"
+  );
+
+}
+
+
+function renderCategories(){
+
+  const list =
+    $("categoryList");
+
+
+  list.innerHTML =
+    "";
+
+
+  allCategories()
+    .forEach(
+      (category) => {
+
+        const isCustom =
+          customCategories
+            .includes(
+              category
+            );
+
+
+        const row =
+          document.createElement(
+            "div"
+          );
+
+
+        row.className =
+          "category-item" +
+          (
+            isCustom
+              ? " custom"
+              : ""
+          );
+
+
+        const left =
+          document.createElement(
+            "div"
+          );
+
+
+        left.className =
+          "left";
+
+
+        const checkbox =
+          document.createElement(
+            "input"
+          );
+
+
+        checkbox.type =
+          "checkbox";
+
+
+        checkbox.checked =
+          selectedCategories
+            .includes(
+              category
+            );
+
+
+        checkbox.disabled =
+          categoryMode ===
+          "all";
+
+
+        checkbox
+          .addEventListener(
+            "change",
+            () => {
+
+              if(
+                checkbox.checked &&
+                !selectedCategories
+                  .includes(
+                    category
+                  )
+              ){
+
+                selectedCategories
+                  .push(
+                    category
+                  );
+
+              }
+
+
+              if(
+                !checkbox.checked
+              ){
+
+                selectedCategories =
+                  selectedCategories
+                    .filter(
+                      item =>
+                        item !==
+                        category
+                    );
+
+              }
+
+
+              $("categoryError")
+                .textContent =
+                "";
+
+            }
+          );
+
+
+        const label =
+          document.createElement(
+            "span"
+          );
+
+
+        label.textContent =
+          category;
+
+
+        left.append(
+          checkbox,
+          label
+        );
+
+
+        row.append(
+          left
+        );
+
+
+        if(
+          isCustom
+        ){
+
+          const removeButton =
+            document.createElement(
+              "button"
+            );
+
+
+          removeButton.className =
+            "remove-btn";
+
+
+          removeButton.textContent =
+            "×";
+
+
+          removeButton.title =
+            "Remove custom category";
+
+
+          removeButton.onclick =
+            () => removeCustom(
+              category
+            );
+
+
+          row.append(
+            removeButton
+          );
+
+        }
+
+
+        list.append(
+          row
+        );
+
+      }
+    );
+
+}
+
+
+function addCustom(){
+
+  const input =
+    $("customCategoryInput");
+
+
+  const value =
+    input.value
+      .trim()
+      .replace(
+        /\s+/g,
+        " "
+      );
+
+
+  if(
+    !value
+  ){
+    return;
+  }
+
+
+  if(
+    allCategories()
+      .some(
+        category =>
+          category
+            .toLowerCase() ===
+          value
+            .toLowerCase()
+      )
+  ){
+
+    $("categoryError")
+      .textContent =
+      "That category is already in the list.";
+
+    return;
+
+  }
+
+
+  customCategories
+    .push(
+      value
+    );
+
+
+  customCategories
+    .sort(
+      (a,b) =>
+        a.localeCompare(b)
+    );
+
+
+  localStorage.setItem(
+    "tappityCustomCategories",
+    JSON.stringify(
+      customCategories
+    )
+  );
+
+
+  if(
+    categoryMode ===
+    "all"
+  ){
+
+    selectedCategories =
+      allCategories();
+
+  }
+
+
+  input.value =
+    "";
+
+
+  $("categoryError")
+    .textContent =
+    "";
+
+
+  buttonSound();
+
+
+  renderCategories();
+
+}
+
+
+function removeCustom(
+  category
+){
+
+  customCategories =
+    customCategories
+      .filter(
+        item =>
+          item !==
+          category
+      );
+
+
+  selectedCategories =
+    selectedCategories
+      .filter(
+        item =>
+          item !==
+          category
+      );
+
+
+  localStorage.setItem(
+    "tappityCustomCategories",
+    JSON.stringify(
+      customCategories
+    )
+  );
+
+
+  if(
+    categoryMode ===
+    "all"
+  ){
+
+    selectedCategories =
+      allCategories();
+
+  }
+
+
+  buttonSound();
+
+
+  renderCategories();
+
+}
+
+
+$("categoriesBtn").onclick =
+  openCategories;
+
+
+document
+  .querySelectorAll(
+    'input[name="categoryMode"]'
+  )
+  .forEach(
+    radio =>
+      radio.addEventListener(
+        "change",
+        event => {
+
+          categoryMode =
+            event.target.value;
+
+
+          selectedCategories =
+            categoryMode ===
+            "all"
+              ? allCategories()
+              : [];
+
+
+          $("categoryError")
+            .textContent =
+            "";
+
+
+          renderCategories();
+
+
+          buttonSound();
+
+        }
+      )
+  );
+
+
+$("addCustomBtn").onclick =
+  () => {
+
+    ensureAudio();
+    addCustom();
+
+  };
+
+
+$("customCategoryInput")
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if(
+        event.key ===
+        "Enter"
+      ){
+
+        ensureAudio();
+        addCustom();
+
+      }
+
+    }
+  );
+
+
+$("categoriesBack").onclick =
+  () => {
+
+    if(
+      categoryMode ===
+      "choose" &&
+      selectedCategories.length ===
+      0
+    ){
+
+      $("categoryError")
+        .textContent =
+        "Choose at least one category before going back.";
+
+      return;
+
+    }
+
+
+    buttonSound();
+
+
+    showScreen(
+      "mainScreen"
+    );
+
+  };
+
+
+/* BOARD */
+
+const letters =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    .split("");
+
+
+function buildBoard(){
+
+  const board =
+    $("board");
+
+
+  letters.forEach(
+    (letter,index) => {
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+
+      button.className =
+        "letter";
+
+
+      button.textContent =
+        letter;
+
+
+      button.dataset.letter =
+        letter;
+
+
+      button.style
+        .setProperty(
+          "--angle",
+          `${index * (360 / 26)}deg`
+        );
+
+
+      /* V2: move buttons farther outward */
+      button.style
+        .setProperty(
+          "--radius",
+          "min(40vw,285px)"
+        );
+
+
+      button
+        .addEventListener(
+          "click",
+          () => useLetter(
+            button,
+            letter
+          )
+        );
+
+
+      board.insertBefore(
+        button,
+        $("centerBuzzer")
+      );
+
+    }
+  );
+
+}
+
+
+function setLettersEnabled(
+  enabled
+){
+
+  document
+    .querySelectorAll(
+      ".letter"
+    )
+    .forEach(
+      button => {
+
+        button.disabled =
+          !enabled ||
+          button.classList
+            .contains(
+              "used"
+            );
+
+      }
+    );
+
+}
+
+
+function resetLetters(){
+
+  usedLetters.clear();
+
+  alphabetExhausted =
+    false;
+
+
+  document
+    .querySelectorAll(
+      ".letter"
+    )
+    .forEach(
+      button => {
+
+        button.classList
+          .remove(
+            "used"
+          );
+
+
+        button.disabled =
+          gameState !==
+          "running";
+
+      }
+    );
+
+}
+
+
+function useLetter(
+  button,
+  letter
+){
+
+  if(
+    gameState !==
+    "running" ||
+    usedLetters
+      .has(
+        letter
+      )
+  ){
+    return;
+  }
+
+
+  ensureAudio();
+
+  buttonSound();
+
+
+  usedLetters
+    .add(
+      letter
+    );
+
+
+  button.classList
+    .add(
+      "used"
+    );
+
+
+  button.disabled =
+    true;
+
+
+  if(
+    usedLetters.size ===
+    26
+  ){
+
+    alphabetExhausted =
+      true;
+
+
+    $("gameStatus")
+      .textContent =
+      "Alphabet complete — press the buzzer to refresh A–Z for the next player.";
+
+  }
+
+}
+
+
+/* GAME */
+
+function pickCategory(){
+
+  const pool =
+    selectedCategories.length
+      ? selectedCategories
+      : allCategories();
+
+
+  if(
+    pool.length ===
+    1
+  ){
+
+    return pool[0];
+
+  }
+
+
+  let choice;
+
+
+  do{
+
+    choice =
+      pool[
+        Math.floor(
+          Math.random() *
+          pool.length
+        )
+      ];
+
+  }while(
+    choice ===
+    previousCategory
+  );
+
+
+  previousCategory =
+    choice;
+
+
+  return choice;
+
+}
+
+
+function updateTimerChoice(){
+
+  timerLength =
+    Number(
+      document.querySelector(
+        'input[name="timer"]:checked'
+      ).value
+    );
+
+}
+
+
+function prepareRound(
+  newCategory = true
+){
+
+  cancelAnimationFrame(
+    timerRAF
+  );
+
+
+  timerRAF =
+    null;
+
+
+  gameState =
+    "ready";
+
+
+  updateTimerChoice();
+
+
+  timeRemaining =
+    timerLength;
+
+
+  pausedRemainingMs =
+    0;
+
+
+  lastTickNumber =
+    null;
+
+
+  if(
+    newCategory
+  ){
+
+    currentCategory =
+      pickCategory();
+
+
+    $("categoryName")
+      .textContent =
+      currentCategory;
+
+  }
+
+
+  $("centerBuzzer")
+    .disabled =
+    false;
+
+
+  $("centerBuzzer")
+    .classList
+    .add(
+      "small-text"
+    );
+
+
+  $("centerBuzzer")
+    .textContent =
+    "START";
+
+
+  $("gameStatus")
+    .textContent =
+    "Press START when everyone is ready.";
+
+
+  $("newRoundBtn")
+    .classList
+    .add(
+      "hidden"
+    );
+
+
+  resetLetters();
+
+
+  setLettersEnabled(
+    false
+  );
+
+}
+
+
+$("playBtn").onclick =
+  () => {
+
+    ensureAudio();
+
+    buttonSound();
+
+    updateTimerChoice();
+
+
+    if(
+      !selectedCategories.length
+    ){
+
+      selectedCategories =
+        allCategories();
+
+    }
+
+
+    showScreen(
+      "gameScreen"
+    );
+
+
+    prepareRound(
+      true
+    );
+
+  };
+
+
+function showCountdown(){
+
+  if(
+    gameState !==
+    "ready"
+  ){
+    return;
+  }
+
+
+  ensureAudio();
+
+
+  gameState =
+    "countdown";
+
+
+  setLettersEnabled(
+    false
+  );
+
+
+  $("centerBuzzer")
+    .disabled =
+    true;
+
+
+  const overlay =
+    $("countOverlay");
+
+
+  const text =
+    $("countText");
+
+
+  overlay.classList
+    .remove(
+      "hidden"
+    );
+
+
+  const sequence = [
+    "3",
+    "2",
+    "1",
+    "GO!"
+  ];
+
+
+  let index = 0;
+
+
+  const step =
+    () => {
+
+      text.textContent =
+        sequence[
+          index
+        ];
+
+
+      text.style.animation =
+        "none";
+
+
+      void text.offsetWidth;
+
+
+      text.style.animation =
+        "pop .65s ease both";
+
+
+      if(
+        index < 3
+      ){
+
+        tickSound();
+
+      }else{
+
+        buttonSound();
+
+      }
+
+
+      index++;
+
+
+      if(
+        index <
+        sequence.length
+      ){
+
+        setTimeout(
+          step,
+          700
+        );
+
+      }else{
+
+        setTimeout(
+          () => {
+
+            overlay.classList
+              .add(
+                "hidden"
+              );
+
+
+            startTurn(
+              timerLength *
+              1000
+            );
+
+          },
+          650
+        );
+
+      }
+
+    };
+
+
+  step();
+
+}
+
+
+function startTurn(
+  milliseconds
+){
+
+  gameState =
+    "running";
+
+
+  pausedRemainingMs =
+    0;
+
+
+  timerEnd =
+    performance.now() +
+    milliseconds;
+
+
+  lastTickNumber =
+    null;
+
+
+  $("centerBuzzer")
+    .disabled =
+    false;
+
+
+  $("centerBuzzer")
+    .classList
+    .remove(
+      "small-text"
+    );
+
+
+  setLettersEnabled(
+    true
+  );
+
+
+  $("gameStatus")
+    .textContent =
+    "Answer → tap your letter → press the buzzer.";
+
+
+  runTimer();
+
+}
+
+
+function runTimer(){
+
+  cancelAnimationFrame(
+    timerRAF
+  );
+
+
+  const loop =
+    (now) => {
+
+      if(
+        gameState !==
+        "running"
+      ){
+        return;
+      }
+
+
+      const remaining =
+        Math.max(
+          0,
+          timerEnd - now
+        );
+
+
+      const display =
+        Math.ceil(
+          remaining /
+          1000
+        );
+
+
+      timeRemaining =
+        remaining /
+        1000;
+
+
+      $("centerBuzzer")
+        .textContent =
+        display;
+
+
+      if(
+        display !==
+        lastTickNumber &&
+        display > 0
+      ){
+
+        if(
+          lastTickNumber !==
+          null
+        ){
+
+          tickSound();
+
+        }
+
+
+        lastTickNumber =
+          display;
+
+      }
+
+
+      if(
+        remaining <=
+        0
+      ){
+
+        timeUp();
+
+        return;
+
+      }
+
+
+      timerRAF =
+        requestAnimationFrame(
+          loop
+        );
+
+    };
+
+
+  timerRAF =
+    requestAnimationFrame(
+      loop
+    );
+
+}
+
+
+function buzzerPress(){
+
+  ensureAudio();
+
+
+  if(
+    gameState ===
+    "ready"
+  ){
+
+    buttonSound();
+
+    showCountdown();
+
+    return;
+
+  }
+
+
+  if(
+    gameState !==
+    "running"
+  ){
+    return;
+  }
+
+
+  buttonSound();
+
+
+  if(
+    alphabetExhausted
+  ){
+
+    resetLetters();
+
+    setLettersEnabled(
+      true
+    );
+
+  }
+
+
+  startTurn(
+    timerLength *
+    1000
+  );
+
+}
+
+
+$("centerBuzzer").onclick =
+  buzzerPress;
+
+
+function timeUp(){
+
+  cancelAnimationFrame(
+    timerRAF
+  );
+
+
+  timerRAF =
+    null;
+
+
+  gameState =
+    "timeup";
+
+
+  setLettersEnabled(
+    false
+  );
+
+
+  $("centerBuzzer")
+    .disabled =
+    true;
+
+
+  $("centerBuzzer")
+    .classList
+    .add(
+      "small-text"
+    );
+
+
+  $("centerBuzzer")
+    .textContent =
+    "TIME'S UP!";
+
+
+  $("gameStatus")
+    .textContent =
+    "Round over.";
+
+
+  $("newRoundBtn")
+    .classList
+    .remove(
+      "hidden"
+    );
+
+
+  buzzSound();
+
+}
+
+
+$("newRoundBtn").onclick =
+  () => {
+
+    ensureAudio();
+
+    buttonSound();
+
+    prepareRound(
+      true
+    );
+
+  };
+
+
+/* PAUSE */
+
+function openPause(){
+
+  if(
+    gameState ===
+    "countdown"
+  ){
+    return;
+  }
+
+
+  ensureAudio();
+
+  buttonSound();
+
+
+  if(
+    gameState ===
+    "running"
+  ){
+
+    pausedRemainingMs =
+      Math.max(
+        0,
+        timerEnd -
+        performance.now()
+      );
+
+
+    cancelAnimationFrame(
+      timerRAF
+    );
+
+
+    timerRAF =
+      null;
+
+
+    gameState =
+      "paused";
+
+
+    setLettersEnabled(
+      false
+    );
+
+
+    $("centerBuzzer")
+      .disabled =
+      true;
+
+  }
+
+
+  $("pauseModal")
+    .classList
+    .remove(
+      "hidden"
+    );
+
+}
+
+
+$("pauseBtn").onclick =
+  openPause;
+
+
+$("resumeBtn").onclick =
+  () => {
+
+    ensureAudio();
+
+    buttonSound();
+
+
+    $("pauseModal")
+      .classList
+      .add(
+        "hidden"
+      );
+
+
+    if(
+      gameState ===
+      "paused"
+    ){
+
+      startTurn(
+        pausedRemainingMs
+      );
+
+    }
+
+  };
+
+
+function askConfirm(
+  title,
+  text,
+  action
+){
+
+  $("confirmTitle")
+    .textContent =
+    title;
+
+
+  $("confirmText")
+    .textContent =
+    text;
+
+
+  confirmAction =
+    action;
+
+
+  $("confirmModal")
+    .classList
+    .remove(
+      "hidden"
+    );
+
+}
+
+
+$("resetBtn").onclick =
+  () => askConfirm(
+
+    "Reset round?",
+
+    "This will choose a new category and reset the timer and alphabet.",
+
+    () => {
+
+      $("pauseModal")
+        .classList
+        .add(
+          "hidden"
+        );
+
+
+      prepareRound(
+        true
+      );
+
+    }
+
+  );
+
+
+$("mainMenuBtn").onclick =
+  () => askConfirm(
+
+    "Return to main menu?",
+
+    "The current round will end.",
+
+    () => {
+
+      cancelAnimationFrame(
+        timerRAF
+      );
+
+
+      timerRAF =
+        null;
+
+
+      gameState =
+        "ready";
+
+
+      $("pauseModal")
+        .classList
+        .add(
+          "hidden"
+        );
+
+
+      showScreen(
+        "mainScreen"
+      );
+
+    }
+
+  );
+
+
+$("confirmCancel").onclick =
+  () => {
+
+    $("confirmModal")
+      .classList
+      .add(
+        "hidden"
+      );
+
+
+    confirmAction =
+      null;
+
+
+    buttonSound();
+
+  };
+
+
+$("confirmYes").onclick =
+  () => {
+
+    ensureAudio();
+
+    buttonSound();
+
+
+    $("confirmModal")
+      .classList
+      .add(
+        "hidden"
+      );
+
+
+    const action =
+      confirmAction;
+
+
+    confirmAction =
+      null;
+
+
+    if(
+      action
+    ){
+
+      action();
+
+    }
+
+  };
+
+
+document.addEventListener(
+  "dblclick",
+  event => {
+
+    if(
+      event.target
+        .closest(
+          "button"
+        )
+    ){
+
+      event.preventDefault();
+
+    }
+
+  },
+  {
+    passive:false
+  }
+);
+
+
+buildBoard();
+
+renderCategories();
+
+applyAudioLevels();
+
+</script>
+
+</body>
+</html>
