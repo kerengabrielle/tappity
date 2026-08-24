@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
 
 <meta
@@ -16,17 +15,13 @@
 
 body {
   margin: 0;
-
   min-height: 100vh;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
   background: #10131c;
-
   color: white;
 
   font-family:
@@ -37,84 +32,69 @@ body {
     sans-serif;
 }
 
-
 .container {
+  width: min(420px, 90vw);
   text-align: center;
-
   padding: 30px;
 }
 
-
 h1 {
-  font-size:
-    clamp(3rem,10vw,6rem);
-
-  margin:
-    0 0 10px;
-
-  color:
-    #ffd84d;
+  font-size: clamp(3rem, 10vw, 6rem);
+  margin: 0 0 10px;
+  color: #ffd84d;
 }
-
 
 p {
-  color:
-    #abb3c8;
-
-  margin:
-    0 0 30px;
-
-  font-size:
-    1.1rem;
+  color: #abb3c8;
+  margin: 0 0 30px;
+  font-size: 1.1rem;
 }
-
 
 .versions {
   display: flex;
-
   flex-direction: column;
-
   gap: 12px;
-
   align-items: center;
 }
-
 
 a {
   display: block;
 
-  width:
-    min(280px,75vw);
+  width: 100%;
 
-  padding:
-    16px 28px;
+  padding: 16px 28px;
 
-  border-radius:
-    16px;
+  border-radius: 16px;
 
-  background:
-    #ffd84d;
+  background: #ffd84d;
+  color: #171717;
 
-  color:
-    #171717;
+  font-weight: 800;
+  font-size: 1.05rem;
 
-  font-weight:
-    800;
+  text-decoration: none;
 
-  text-decoration:
-    none;
+  box-sizing: border-box;
 
-  font-size:
-    1.05rem;
-
-  box-sizing:
-    border-box;
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease;
 }
 
+a:hover {
+  filter: brightness(1.05);
+}
 
 a:active {
-  transform:
-    scale(.98);
+  transform: scale(0.98);
+}
+
+.version-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.65;
 }
 
 </style>
@@ -123,7 +103,6 @@ a:active {
 
 
 <body>
-
 
 <div class="container">
 
@@ -140,20 +119,35 @@ a:active {
 
     <a href="v1/">
       Play V1
+      <span class="version-note">
+        Original version
+      </span>
     </a>
 
     <a href="v2/">
       Play V2
+      <span class="version-note">
+        Bigger letter buttons
+      </span>
     </a>
 
     <a href="v3/">
       Play V3
+      <span class="version-note">
+        Solo mode + full screen
+      </span>
+    </a>
+
+    <a href="v3a/">
+      Play V3a
+      <span class="version-note">
+        Refined solo controls
+      </span>
     </a>
 
   </div>
 
 </div>
-
 
 </body>
 
