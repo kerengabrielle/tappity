@@ -1,0 +1,3193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10131c">
+<title>Tappity V3a</title>
+
+<style>
+:root{
+  --bg:#10131c;
+  --panel:#1a2030;
+  --panel2:#242b3e;
+  --text:#f7f7fb;
+  --muted:#abb3c8;
+  --accent:#ffd84d;
+  --danger:#ff5757;
+  --selected:#ffd84d;
+  --shadow:0 14px 35px rgba(0,0,0,.28);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  overscroll-behavior:none;
+}
+
+body{
+  background:
+    radial-gradient(circle at top,#1b2234 0,#10131c 48%,#0a0c12 100%);
+  color:var(--text);
+  font-family:
+    Inter,
+    ui-rounded,
+    "SF Pro Rounded",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+body.game-active{
+  overflow:hidden;
+}
+
+button,input{
+  font:inherit;
+}
+
+button{
+  touch-action:manipulation;
+}
+
+.hidden{
+  display:none !important;
+}
+
+.screen{
+  display:none;
+  min-height:100dvh;
+  width:100%;
+  padding:
+    max(18px,env(safe-area-inset-top))
+    max(18px,env(safe-area-inset-right))
+    max(18px,env(safe-area-inset-bottom))
+    max(18px,env(safe-area-inset-left));
+}
+
+.screen.active{
+  display:flex;
+}
+
+#mainScreen,
+#categoriesScreen,
+#rulesScreen{
+  align-items:center;
+  justify-content:center;
+}
+
+.card{
+  width:min(760px,100%);
+  background:rgba(26,32,48,.96);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  padding:clamp(22px,5vw,40px);
+  box-shadow:var(--shadow);
+  position:relative;
+}
+
+.logo{
+  margin:0;
+  text-align:center;
+  color:var(--accent);
+  font-size:clamp(2.5rem,8vw,5.2rem);
+  font-weight:1000;
+  letter-spacing:.16em;
+  text-shadow:0 6px 24px rgba(255,216,77,.18);
+}
+
+.subtitle{
+  text-align:center;
+  color:var(--muted);
+  margin:8px 0 26px;
+}
+
+.fullscreen-corner{
+  position:absolute;
+  right:16px;
+  top:16px;
+}
+
+.icon-btn{
+  border:0;
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  background:var(--panel2);
+  color:white;
+  cursor:pointer;
+  font-weight:1000;
+  font-size:1.25rem;
+}
+
+.icon-btn:active{
+  transform:scale(.95);
+}
+
+.setting-label{
+  text-align:center;
+  font-weight:900;
+  margin-top:14px;
+}
+
+.choice-row,
+.mode-choice{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:12px 0 22px;
+}
+
+.choice-row label,
+.mode-choice label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--panel2);
+  padding:12px 16px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:800;
+}
+
+input[type="radio"],
+input[type="checkbox"]{
+  accent-color:var(--accent);
+  width:18px;
+  height:18px;
+}
+
+.menu-buttons{
+  display:grid;
+  gap:12px;
+}
+
+.btn{
+  border:0;
+  border-radius:16px;
+  padding:15px 18px;
+  font-weight:900;
+  color:var(--text);
+  background:var(--panel2);
+  cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+.btn:active{
+  transform:scale(.98);
+}
+
+.btn.primary{
+  background:var(--accent);
+  color:#171717;
+}
+
+.btn.danger{
+  background:var(--danger);
+  color:white;
+}
+
+.btn.ghost{
+  background:transparent;
+  border:1px solid rgba(255,255,255,.12);
+}
+
+.btn.small{
+  padding:11px 14px;
+  font-size:.9rem;
+}
+
+.section-title{
+  margin:0;
+  font-size:clamp(1.8rem,5vw,2.6rem);
+}
+
+.back-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:22px;
+}
+
+.category-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+  max-height:48dvh;
+  overflow:auto;
+  padding-right:4px;
+}
+
+.category-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:var(--panel2);
+  padding:12px;
+  border-radius:14px;
+}
+
+.category-item.custom{
+  justify-content:space-between;
+}
+
+.category-item .left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.remove-btn{
+  border:0;
+  background:transparent;
+  color:#ff9090;
+  font-size:1.25rem;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.add-custom{
+  display:flex;
+  gap:10px;
+  margin-top:18px;
+}
+
+.add-custom input,
+.solo-input{
+  flex:1;
+  min-width:0;
+  background:#111725;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:14px;
+  padding:14px;
+  color:white;
+  outline:none;
+}
+
+.add-custom input:focus,
+.solo-input:focus{
+  border-color:var(--accent);
+}
+
+.help{
+  color:var(--muted);
+  font-size:.92rem;
+  line-height:1.5;
+}
+
+.error{
+  color:#ff9d9d;
+  min-height:1.3em;
+  margin-top:10px;
+  font-weight:750;
+}
+
+.rules{
+  line-height:1.65;
+  color:#e6e8ef;
+}
+
+.rules h3{
+  margin:1.4rem 0 .4rem;
+}
+
+.rules ol{
+  padding-left:1.3rem;
+}
+
+.rules li{
+  margin:.55rem 0;
+}
+
+
+/* GAME */
+
+#gameScreen{
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+  overflow:hidden;
+}
+
+.game-top{
+  width:min(1020px,100%);
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:8px;
+  align-items:start;
+}
+
+.category-box{
+  background:rgba(26,32,48,.92);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:14px 18px;
+  box-shadow:var(--shadow);
+}
+
+.category-label{
+  font-size:.75rem;
+  letter-spacing:.14em;
+  color:var(--muted);
+  font-weight:900;
+}
+
+#categoryName{
+  font-size:clamp(1.2rem,3.5vw,2rem);
+  font-weight:1000;
+  margin-top:3px;
+  overflow-wrap:anywhere;
+}
+
+.board-wrap{
+  width:min(940px,100%);
+  display:grid;
+  place-items:center;
+  flex:1;
+  min-height:0;
+}
+
+.board{
+  width:min(88dvh,94vw,730px);
+  aspect-ratio:1/1;
+  position:relative;
+  margin:auto;
+}
+
+#gameScreen.solo-mode .board{
+  width:min(62dvh,90vw,600px);
+}
+
+
+/* LETTERS */
+
+.letter{
+  position:absolute;
+  left:50%;
+  top:50%;
+
+  width:clamp(58px,9vw,82px);
+  height:clamp(58px,9vw,82px);
+
+  margin-left:calc(clamp(58px,9vw,82px)/-2);
+  margin-top:calc(clamp(58px,9vw,82px)/-2);
+
+  border:0;
+  border-radius:50%;
+
+  background:#f2f4f8;
+  color:#131722;
+
+  font-weight:1000;
+  font-size:clamp(1.1rem,3vw,1.55rem);
+
+  box-shadow:
+    0 7px 16px rgba(0,0,0,.3),
+    inset 0 -4px 0 rgba(0,0,0,.12);
+
+  cursor:pointer;
+
+  transform:
+    rotate(var(--angle))
+    translateY(calc(var(--radius)*-1))
+    rotate(calc(var(--angle)*-1));
+
+  transition:
+    background .15s ease,
+    color .15s ease,
+    opacity .15s ease,
+    scale .15s ease;
+}
+
+.letter:active:not(:disabled){
+  scale:.92;
+}
+
+.letter.selected{
+  background:var(--selected);
+  color:#171717;
+  box-shadow:
+    0 0 0 4px rgba(255,216,77,.25),
+    0 7px 16px rgba(0,0,0,.3),
+    inset 0 -4px 0 rgba(0,0,0,.12);
+}
+
+.letter.used{
+  background:#3a4152;
+  color:#81899d;
+  opacity:.65;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+}
+
+.letter:disabled{
+  cursor:default;
+}
+
+
+/* CENTER BUZZER */
+
+.center-buzzer{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+
+  width:clamp(145px,27vw,225px);
+  aspect-ratio:1/1;
+
+  border-radius:50%;
+  border:clamp(8px,1.8vw,14px) solid #702d20;
+
+  background:
+    radial-gradient(
+      circle at 38% 30%,
+      #ffca70 0,
+      #ff8f5a 38%,
+      #e25433 76%,
+      #b63c27 100%
+    );
+
+  box-shadow:
+    0 16px 0 #69281d,
+    0 24px 32px rgba(0,0,0,.45),
+    inset 0 8px 18px rgba(255,255,255,.28);
+
+  color:white;
+  font-weight:1000;
+  font-size:clamp(2.5rem,8vw,5.2rem);
+
+  display:grid;
+  place-items:center;
+
+  text-align:center;
+  line-height:.93;
+  padding:12px;
+
+  cursor:pointer;
+  z-index:4;
+}
+
+.center-buzzer.small-text{
+  font-size:clamp(1.55rem,5vw,2.8rem);
+}
+
+.center-buzzer.solo-timer{
+  cursor:default;
+}
+
+.center-buzzer:disabled{
+  cursor:default;
+  filter:saturate(.72);
+}
+
+.game-status{
+  text-align:center;
+  color:var(--muted);
+  font-weight:800;
+  min-height:1.3em;
+  font-size:.94rem;
+}
+
+.round-actions{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  min-height:48px;
+}
+
+
+/* SOLO */
+
+.solo-area{
+  width:min(760px,96vw);
+  display:none;
+}
+
+.solo-area.active{
+  display:block;
+}
+
+.solo-stats{
+  display:flex;
+  justify-content:center;
+  gap:22px;
+  color:var(--muted);
+  font-weight:900;
+  margin-bottom:7px;
+}
+
+.solo-answer-panel{
+  display:none;
+  grid-template-columns:1fr auto;
+  gap:10px;
+}
+
+.solo-answer-panel.active{
+  display:grid;
+}
+
+.solo-selected-label{
+  grid-column:1/-1;
+  text-align:center;
+  color:var(--accent);
+  font-weight:1000;
+  font-size:1rem;
+}
+
+.solo-message{
+  min-height:1.25em;
+  margin-top:5px;
+  text-align:center;
+  color:#ffb0b0;
+  font-weight:800;
+}
+
+
+/* COUNTDOWN */
+
+.count-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(8,10,15,.76);
+  backdrop-filter:blur(7px);
+  display:grid;
+  place-items:center;
+  z-index:40;
+}
+
+.count-overlay span{
+  font-size:min(34vw,12rem);
+  font-weight:1000;
+  color:var(--accent);
+  animation:pop .65s ease both;
+}
+
+@keyframes pop{
+  0%{
+    transform:scale(.55);
+    opacity:0;
+  }
+
+  45%{
+    transform:scale(1.12);
+    opacity:1;
+  }
+
+  100%{
+    transform:scale(1);
+    opacity:1;
+  }
+}
+
+
+/* MODALS */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(4,6,10,.78);
+  backdrop-filter:blur(9px);
+  display:grid;
+  place-items:center;
+  padding:18px;
+  z-index:50;
+}
+
+.pause-card{
+  width:min(760px,100%);
+  background:var(--panel);
+  border-radius:26px;
+  padding:24px;
+  box-shadow:var(--shadow);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+}
+
+.audio-panel{
+  background:#111725;
+  border-radius:20px;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:22px;
+}
+
+.audio-row{
+  display:grid;
+  grid-template-columns:48px 1fr;
+  gap:12px;
+  align-items:center;
+}
+
+.audio-icon{
+  border:0;
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  background:var(--panel2);
+  font-size:1.35rem;
+  color:white;
+  cursor:pointer;
+}
+
+.audio-row label{
+  display:block;
+  font-size:.82rem;
+  color:var(--muted);
+  font-weight:900;
+  margin-bottom:7px;
+}
+
+input[type="range"]{
+  width:100%;
+  accent-color:var(--accent);
+}
+
+.confirm-card{
+  width:min(430px,100%);
+  background:var(--panel);
+  padding:24px;
+  border-radius:24px;
+  text-align:center;
+  box-shadow:var(--shadow);
+}
+
+.confirm-actions{
+  display:flex;
+  gap:10px;
+  margin-top:18px;
+}
+
+.confirm-actions .btn{
+  flex:1;
+}
+
+
+/* RESPONSIVE */
+
+@media(max-width:700px){
+  .category-list{
+    grid-template-columns:1fr;
+  }
+
+  .pause-card{
+    grid-template-columns:1fr;
+  }
+
+  .letter{
+    --radius:min(41vw,34dvh,275px)!important;
+  }
+
+  #gameScreen.solo-mode .letter{
+    --radius:min(38vw,23dvh,220px)!important;
+  }
+}
+
+@media(max-width:520px){
+  .screen{
+    padding-left:8px;
+    padding-right:8px;
+  }
+
+  .game-top{
+    gap:5px;
+  }
+
+  .category-box{
+    padding:10px 12px;
+  }
+
+  .game-top .icon-btn,
+  .game-top .btn{
+    width:43px;
+    min-width:43px;
+    height:43px;
+    padding:0;
+  }
+
+  .letter{
+    width:48px;
+    height:48px;
+    margin-left:-24px;
+    margin-top:-24px;
+    font-size:1.05rem;
+    --radius:min(43vw,29dvh)!important;
+  }
+
+  .center-buzzer{
+    width:min(132px,24dvh);
+  }
+
+  #gameScreen.solo-mode .board{
+    width:min(48dvh,94vw);
+  }
+
+  #gameScreen.solo-mode .letter{
+    width:42px;
+    height:42px;
+    margin-left:-21px;
+    margin-top:-21px;
+    font-size:.92rem;
+    --radius:min(40vw,20dvh)!important;
+  }
+}
+
+@media(max-height:720px) and (orientation:landscape){
+  #gameScreen{
+    padding-top:7px;
+    gap:5px;
+  }
+
+  .board{
+    width:min(70dvh,650px);
+  }
+
+  .letter{
+    width:46px;
+    height:46px;
+    margin-left:-23px;
+    margin-top:-23px;
+    --radius:min(30dvh,265px)!important;
+  }
+
+  .center-buzzer{
+    width:min(25dvh,165px);
+  }
+
+  #gameScreen.solo-mode .board{
+    width:min(50dvh,520px);
+  }
+
+  #gameScreen.solo-mode .letter{
+    --radius:min(21dvh,190px)!important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+
+<!-- MAIN MENU -->
+
+<section id="mainScreen" class="screen active">
+
+  <div class="card">
+
+    <button
+      id="fullscreenMainBtn"
+      class="icon-btn fullscreen-corner"
+      aria-label="Toggle full screen"
+      title="Full screen"
+    >
+      ⛶
+    </button>
+
+    <h1 class="logo">
+      TAPPITY!
+    </h1>
+
+    <p class="subtitle">
+      A quick-fire category game
+    </p>
+
+
+    <div class="setting-label">
+      GAME MODE
+    </div>
+
+    <div class="choice-row">
+
+      <label>
+        <input
+          type="radio"
+          name="gameMode"
+          value="multi"
+          checked
+        >
+        Multiplayer
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="gameMode"
+          value="solo"
+        >
+        Solo
+      </label>
+
+    </div>
+
+
+    <div class="setting-label">
+      TURN TIMER
+    </div>
+
+    <div class="choice-row">
+
+      <label>
+        <input type="radio" name="timer" value="5">
+        5 sec
+      </label>
+
+      <label>
+        <input type="radio" name="timer" value="10" checked>
+        10 sec
+      </label>
+
+      <label>
+        <input type="radio" name="timer" value="15">
+        15 sec
+      </label>
+
+      <label>
+        <input type="radio" name="timer" value="20">
+        20 sec
+      </label>
+
+    </div>
+
+
+    <div class="menu-buttons">
+
+      <button
+        class="btn primary"
+        id="playBtn"
+      >
+        PLAY
+      </button>
+
+      <button
+        class="btn"
+        id="categoriesBtn"
+      >
+        CATEGORIES
+      </button>
+
+      <button
+        class="btn"
+        id="rulesBtn"
+      >
+        RULES
+      </button>
+
+    </div>
+
+
+    <p
+      id="fullscreenMessage"
+      class="help"
+      style="text-align:center"
+    ></p>
+
+  </div>
+
+</section>
+
+
+<!-- CATEGORIES -->
+
+<section id="categoriesScreen" class="screen">
+
+  <div class="card">
+
+    <div class="back-row">
+
+      <h2 class="section-title">
+        Categories
+      </h2>
+
+      <button
+        class="btn ghost"
+        id="categoriesBack"
+      >
+        ← Back
+      </button>
+
+    </div>
+
+
+    <div class="mode-choice">
+
+      <label>
+        <input
+          type="radio"
+          name="categoryMode"
+          value="all"
+          checked
+        >
+        All Categories
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="categoryMode"
+          value="choose"
+        >
+        Choose Categories
+      </label>
+
+    </div>
+
+
+    <p class="help">
+      Opening this screen starts with all categories selected.
+      Choose “Choose Categories” to clear the list, then select
+      only the categories you want to use.
+    </p>
+
+
+    <div
+      id="categoryList"
+      class="category-list"
+    ></div>
+
+
+    <div class="add-custom">
+
+      <input
+        id="customCategoryInput"
+        maxlength="70"
+        placeholder="Add a custom category…"
+      >
+
+      <button
+        class="btn primary"
+        id="addCustomBtn"
+      >
+        ADD
+      </button>
+
+    </div>
+
+
+    <div
+      id="categoryError"
+      class="error"
+    ></div>
+
+  </div>
+
+</section>
+
+
+<!-- RULES -->
+
+<section id="rulesScreen" class="screen">
+
+  <div class="card">
+
+    <div class="back-row">
+
+      <h2 class="section-title">
+        Rules
+      </h2>
+
+      <button
+        class="btn ghost"
+        id="rulesBack"
+      >
+        ← Back
+      </button>
+
+    </div>
+
+
+    <div class="rules">
+
+      <h3>
+        Multiplayer
+      </h3>
+
+      <ol>
+
+        <li>
+          A category is chosen at random.
+          Press <strong>START</strong> and wait
+          for 3, 2, 1, GO!
+        </li>
+
+        <li>
+          Say an answer that fits the category.
+        </li>
+
+        <li>
+          Tap the letter your answer begins with.
+        </li>
+
+        <li>
+          Press the centre buzzer to reset the
+          timer and pass play to the next person.
+        </li>
+
+        <li>
+          Used letters cannot be selected again
+          during the current alphabet cycle.
+        </li>
+
+        <li>
+          Once all 26 letters have been used,
+          press the buzzer as normal. A–Z will
+          become available again for the next player.
+        </li>
+
+        <li>
+          The round ends only when somebody runs
+          out of time.
+        </li>
+
+      </ol>
+
+
+      <h3>
+        Solo
+      </h3>
+
+      <ol>
+
+        <li>
+          Choose <strong>Solo</strong> on the main
+          menu and start the round.
+        </li>
+
+        <li>
+          When the timer begins, first tap an
+          available letter on the board.
+        </li>
+
+        <li>
+          The selected letter turns yellow and
+          the answer box appears.
+        </li>
+
+        <li>
+          You may change your selected letter by
+          tapping another available letter before
+          submitting your answer.
+        </li>
+
+        <li>
+          Type an answer beginning with the
+          selected letter.
+        </li>
+
+        <li>
+          Press Enter or Submit. The answer will
+          only be accepted if it begins with your
+          selected letter.
+        </li>
+
+        <li>
+          After a successful answer, that letter
+          becomes used, your answer count increases,
+          the answer box disappears, and the timer
+          resets.
+        </li>
+
+        <li>
+          Select another available letter and repeat.
+        </li>
+
+        <li>
+          The timer continues running while you
+          choose a letter and type your answer.
+          Selecting a letter does not pause or
+          reset the clock.
+        </li>
+
+        <li>
+          Once all 26 letters have been used,
+          A–Z automatically becomes available again.
+        </li>
+
+        <li>
+          Tappity checks only whether your answer
+          starts with the selected letter. It does
+          not verify whether the answer genuinely
+          fits the category, so play on the honour
+          system.
+        </li>
+
+        <li>
+          Your number of successful answers is
+          your score. Your best Solo score is
+          saved on the current browser/device.
+        </li>
+
+      </ol>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- GAME -->
+
+<section id="gameScreen" class="screen">
+
+  <div class="game-top">
+
+    <div class="category-box">
+
+      <div class="category-label">
+        CATEGORY
+      </div>
+
+      <div id="categoryName">
+        Animals
+      </div>
+
+    </div>
+
+
+    <button
+      id="fullscreenGameBtn"
+      class="icon-btn"
+      aria-label="Toggle full screen"
+      title="Full screen"
+    >
+      ⛶
+    </button>
+
+
+    <button
+      id="pauseBtn"
+      class="icon-btn"
+      aria-label="Pause"
+      title="Pause"
+    >
+      Ⅱ
+    </button>
+
+  </div>
+
+
+  <div class="board-wrap">
+
+    <div
+      id="board"
+      class="board"
+    >
+
+      <button
+        id="centerBuzzer"
+        class="center-buzzer small-text"
+      >
+        START
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="soloArea"
+    class="solo-area"
+  >
+
+    <div class="solo-stats">
+
+      <span>
+        ANSWERS:
+        <strong id="soloScore">0</strong>
+      </span>
+
+      <span>
+        BEST:
+        <strong id="soloBest">0</strong>
+      </span>
+
+    </div>
+
+
+    <div
+      id="soloAnswerPanel"
+      class="solo-answer-panel"
+    >
+
+      <div
+        id="soloSelectedLabel"
+        class="solo-selected-label"
+      >
+        Selected: A
+      </div>
+
+      <input
+        id="soloInput"
+        class="solo-input"
+        maxlength="80"
+        autocomplete="off"
+        autocapitalize="sentences"
+        placeholder="Type your answer…"
+      >
+
+      <button
+        id="soloSubmit"
+        class="btn primary"
+      >
+        SUBMIT
+      </button>
+
+    </div>
+
+
+    <div
+      id="soloMessage"
+      class="solo-message"
+    ></div>
+
+  </div>
+
+
+  <div
+    id="gameStatus"
+    class="game-status"
+  >
+    Press START when everyone is ready.
+  </div>
+
+
+  <div class="round-actions">
+
+    <button
+      id="newRoundBtn"
+      class="btn primary hidden"
+    >
+      NEW ROUND
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- COUNTDOWN -->
+
+<div
+  id="countOverlay"
+  class="count-overlay hidden"
+>
+
+  <span id="countText">
+    3
+  </span>
+
+</div>
+
+
+<!-- PAUSE -->
+
+<div
+  id="pauseModal"
+  class="modal hidden"
+>
+
+  <div class="pause-card">
+
+    <div>
+
+      <h2>
+        Paused
+      </h2>
+
+      <div class="menu-buttons">
+
+        <button
+          class="btn primary"
+          id="resumeBtn"
+        >
+          RESUME
+        </button>
+
+        <button
+          class="btn"
+          id="resetBtn"
+        >
+          RESET
+        </button>
+
+        <button
+          class="btn danger"
+          id="mainMenuBtn"
+        >
+          RETURN TO MAIN MENU
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="audio-panel">
+
+      <div class="audio-row">
+
+        <button
+          class="audio-icon"
+          id="sfxMuteBtn"
+        >
+          🔊
+        </button>
+
+        <div>
+
+          <label for="sfxSlider">
+            SFX
+          </label>
+
+          <input
+            id="sfxSlider"
+            type="range"
+            min="0"
+            max="100"
+            value="80"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="audio-row">
+
+        <button
+          class="audio-icon"
+          id="musicMuteBtn"
+        >
+          🎵
+        </button>
+
+        <div>
+
+          <label for="musicSlider">
+            MUSIC
+          </label>
+
+          <input
+            id="musicSlider"
+            type="range"
+            min="0"
+            max="100"
+            value="25"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- CONFIRM -->
+
+<div
+  id="confirmModal"
+  class="modal hidden"
+>
+
+  <div class="confirm-card">
+
+    <h3 id="confirmTitle">
+      Are you sure?
+    </h3>
+
+    <p
+      id="confirmText"
+      class="help"
+    ></p>
+
+    <div class="confirm-actions">
+
+      <button
+        id="confirmCancel"
+        class="btn ghost"
+      >
+        Cancel
+      </button>
+
+      <button
+        id="confirmYes"
+        class="btn danger"
+      >
+        Yes
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const DEFAULT_CATEGORIES = [
+  "Animals",
+  "Beverages",
+  "Books",
+  "Brands",
+  "Cities",
+  "Colors",
+  "Countries",
+  "Fictional Characters",
+  "Food",
+  "Fruits & Vegetables",
+  "Historical Figures",
+  "Hollywood Actors",
+  "Hollywood Actresses",
+  "Movies (Animation)",
+  "Movies (Chick Flicks)",
+  "Movies (Franchises)",
+  "Musical Artists",
+  "Plays & Musicals",
+  "School Subjects",
+  "TV Shows"
+];
+
+const $ = id =>
+  document.getElementById(id);
+
+const screens = [
+  "mainScreen",
+  "categoriesScreen",
+  "rulesScreen",
+  "gameScreen"
+];
+
+let customCategories =
+  JSON.parse(
+    localStorage.getItem("tappityCustomCategories") || "[]"
+  );
+
+let selectedCategories = [
+  ...DEFAULT_CATEGORIES,
+  ...customCategories
+];
+
+let categoryMode = "all";
+let gameMode = "multi";
+let timerLength = 10;
+
+let currentCategory = "";
+let previousCategory = null;
+
+let usedLetters = new Set();
+let selectedSoloLetter = null;
+let alphabetExhausted = false;
+
+let gameState = "ready";
+let timerRAF = null;
+let timerEnd = 0;
+let pausedRemainingMs = 0;
+let lastTickNumber = null;
+
+let confirmAction = null;
+
+let soloScore = 0;
+let soloBest =
+  Number(
+    localStorage.getItem("tappitySoloBest") || 0
+  );
+
+
+/* AUDIO */
+
+let audioCtx = null;
+let masterSfx = null;
+let masterMusic = null;
+let musicTimer = null;
+let musicStep = 0;
+
+let sfxVolume =
+  Number(
+    localStorage.getItem("tappitySfxVolume") ?? 80
+  );
+
+let musicVolume =
+  Number(
+    localStorage.getItem("tappityMusicVolume") ?? 25
+  );
+
+let sfxMuted =
+  localStorage.getItem("tappitySfxMuted") === "true";
+
+let musicMuted =
+  localStorage.getItem("tappityMusicMuted") === "true";
+
+
+function initAudio(){
+
+  if(audioCtx) return;
+
+  const Ctx =
+    window.AudioContext ||
+    window.webkitAudioContext;
+
+  if(!Ctx) return;
+
+  audioCtx =
+    new Ctx();
+
+  masterSfx =
+    audioCtx.createGain();
+
+  masterMusic =
+    audioCtx.createGain();
+
+  masterSfx.connect(
+    audioCtx.destination
+  );
+
+  masterMusic.connect(
+    audioCtx.destination
+  );
+
+  applyAudioLevels();
+
+}
+
+
+function ensureAudio(){
+
+  initAudio();
+
+  if(
+    audioCtx?.state === "suspended"
+  ){
+    audioCtx.resume();
+  }
+
+  startMusic();
+
+}
+
+
+function tone(
+  freq,
+  duration=.06,
+  type="square",
+  gain=.16,
+  destination=masterSfx
+){
+
+  if(
+    !audioCtx ||
+    !destination
+  ){
+    return;
+  }
+
+  const t =
+    audioCtx.currentTime;
+
+  const oscillator =
+    audioCtx.createOscillator();
+
+  const gainNode =
+    audioCtx.createGain();
+
+  oscillator.type =
+    type;
+
+  oscillator.frequency
+    .setValueAtTime(
+      freq,
+      t
+    );
+
+  gainNode.gain
+    .setValueAtTime(
+      .0001,
+      t
+    );
+
+  gainNode.gain
+    .exponentialRampToValueAtTime(
+      Math.max(.0002,gain),
+      t+.008
+    );
+
+  gainNode.gain
+    .exponentialRampToValueAtTime(
+      .0001,
+      t+duration
+    );
+
+  oscillator.connect(
+    gainNode
+  );
+
+  gainNode.connect(
+    destination
+  );
+
+  oscillator.start(t);
+
+  oscillator.stop(
+    t+duration+.02
+  );
+
+}
+
+
+function tickSound(){
+  tone(
+    1050,
+    .045,
+    "square",
+    .09
+  );
+}
+
+
+function buttonSound(){
+  tone(
+    620,
+    .055,
+    "sine",
+    .075
+  );
+}
+
+
+function buzzSound(){
+
+  tone(
+    155,
+    .52,
+    "sawtooth",
+    .25
+  );
+
+  tone(
+    115,
+    .52,
+    "square",
+    .12
+  );
+
+}
+
+
+function startMusic(){
+
+  if(
+    !audioCtx ||
+    musicTimer
+  ){
+    return;
+  }
+
+  const notes = [
+    261.63,
+    329.63,
+    392,
+    329.63,
+    293.66,
+    349.23,
+    440,
+    349.23
+  ];
+
+  musicTimer =
+    setInterval(
+      ()=>{
+
+        if(
+          musicMuted ||
+          musicVolume===0
+        ){
+          return;
+        }
+
+        tone(
+          notes[musicStep%notes.length],
+          .42,
+          "sine",
+          .06,
+          masterMusic
+        );
+
+        musicStep++;
+
+      },
+      520
+    );
+
+}
+
+
+function applyAudioLevels(){
+
+  if(!audioCtx) return;
+
+  masterSfx.gain
+    .setTargetAtTime(
+      sfxMuted
+        ? 0
+        : sfxVolume/100,
+      audioCtx.currentTime,
+      .01
+    );
+
+  masterMusic.gain
+    .setTargetAtTime(
+      musicMuted
+        ? 0
+        : (musicVolume/100)*.20,
+      audioCtx.currentTime,
+      .01
+    );
+
+  $("sfxMuteBtn")
+    .textContent =
+    sfxMuted ||
+    sfxVolume===0
+      ? "🔇"
+      : "🔊";
+
+  $("musicMuteBtn")
+    .textContent =
+    musicMuted ||
+    musicVolume===0
+      ? "🔇"
+      : "🎵";
+
+}
+
+
+function saveAudio(){
+
+  localStorage.setItem(
+    "tappitySfxVolume",
+    sfxVolume
+  );
+
+  localStorage.setItem(
+    "tappityMusicVolume",
+    musicVolume
+  );
+
+  localStorage.setItem(
+    "tappitySfxMuted",
+    sfxMuted
+  );
+
+  localStorage.setItem(
+    "tappityMusicMuted",
+    musicMuted
+  );
+
+}
+
+
+$("sfxSlider").value =
+  sfxVolume;
+
+$("musicSlider").value =
+  musicVolume;
+
+
+$("sfxSlider").oninput =
+  e=>{
+
+    sfxVolume =
+      Number(e.target.value);
+
+    if(sfxVolume>0){
+      sfxMuted=false;
+    }
+
+    applyAudioLevels();
+    saveAudio();
+
+  };
+
+
+$("musicSlider").oninput =
+  e=>{
+
+    musicVolume =
+      Number(e.target.value);
+
+    if(musicVolume>0){
+      musicMuted=false;
+    }
+
+    applyAudioLevels();
+    saveAudio();
+
+  };
+
+
+$("sfxMuteBtn").onclick =
+  ()=>{
+
+    ensureAudio();
+
+    sfxMuted =
+      !sfxMuted;
+
+    applyAudioLevels();
+    saveAudio();
+
+  };
+
+
+$("musicMuteBtn").onclick =
+  ()=>{
+
+    ensureAudio();
+
+    musicMuted =
+      !musicMuted;
+
+    applyAudioLevels();
+    saveAudio();
+
+  };
+
+
+/* NAVIGATION */
+
+function showScreen(id){
+
+  screens.forEach(
+    screen=>{
+
+      $(screen)
+        .classList
+        .toggle(
+          "active",
+          screen===id
+        );
+
+    }
+  );
+
+  document.body
+    .classList
+    .toggle(
+      "game-active",
+      id==="gameScreen"
+    );
+
+}
+
+
+$("rulesBtn").onclick =
+  ()=>showScreen("rulesScreen");
+
+$("rulesBack").onclick =
+  ()=>showScreen("mainScreen");
+
+
+/* FULL SCREEN */
+
+function isFullscreen(){
+
+  return !!(
+    document.fullscreenElement ||
+    document.webkitFullscreenElement
+  );
+
+}
+
+
+async function toggleFullscreen(){
+
+  const root =
+    document.documentElement;
+
+  try{
+
+    if(isFullscreen()){
+
+      if(document.exitFullscreen){
+        await document.exitFullscreen();
+      }
+
+      else if(document.webkitExitFullscreen){
+        document.webkitExitFullscreen();
+      }
+
+    }
+
+    else{
+
+      if(root.requestFullscreen){
+        await root.requestFullscreen();
+      }
+
+      else if(root.webkitRequestFullscreen){
+        root.webkitRequestFullscreen();
+      }
+
+      else{
+        throw new Error();
+      }
+
+    }
+
+    $("fullscreenMessage")
+      .textContent="";
+
+  }
+
+  catch{
+
+    $("fullscreenMessage")
+      .textContent =
+      "Full screen is not available in this browser.";
+
+  }
+
+}
+
+
+$("fullscreenMainBtn").onclick =
+  toggleFullscreen;
+
+$("fullscreenGameBtn").onclick =
+  toggleFullscreen;
+
+
+/* CATEGORIES */
+
+function allCategories(){
+
+  return [
+    ...DEFAULT_CATEGORIES,
+    ...customCategories
+  ];
+
+}
+
+
+function openCategories(){
+
+  categoryMode="all";
+
+  selectedCategories=
+    allCategories();
+
+  document.querySelector(
+    'input[name="categoryMode"][value="all"]'
+  ).checked=true;
+
+  renderCategories();
+
+  $("categoryError")
+    .textContent="";
+
+  showScreen(
+    "categoriesScreen"
+  );
+
+}
+
+
+function renderCategories(){
+
+  const list =
+    $("categoryList");
+
+  list.innerHTML="";
+
+  allCategories()
+    .forEach(
+      category=>{
+
+        const isCustom =
+          customCategories
+            .includes(category);
+
+        const row =
+          document.createElement("div");
+
+        row.className =
+          "category-item" +
+          (isCustom?" custom":"");
+
+        const left =
+          document.createElement("div");
+
+        left.className="left";
+
+        const checkbox =
+          document.createElement("input");
+
+        checkbox.type="checkbox";
+
+        checkbox.checked =
+          selectedCategories
+            .includes(category);
+
+        checkbox.disabled =
+          categoryMode==="all";
+
+        checkbox.onchange =
+          ()=>{
+
+            if(checkbox.checked){
+
+              if(
+                !selectedCategories
+                  .includes(category)
+              ){
+                selectedCategories.push(category);
+              }
+
+            }
+
+            else{
+
+              selectedCategories =
+                selectedCategories
+                  .filter(
+                    x=>x!==category
+                  );
+
+            }
+
+          };
+
+        const label =
+          document.createElement("span");
+
+        label.textContent =
+          category;
+
+        left.append(
+          checkbox,
+          label
+        );
+
+        row.append(left);
+
+        if(isCustom){
+
+          const remove =
+            document.createElement("button");
+
+          remove.className =
+            "remove-btn";
+
+          remove.textContent =
+            "×";
+
+          remove.onclick =
+            ()=>removeCustom(category);
+
+          row.append(remove);
+
+        }
+
+        list.append(row);
+
+      }
+    );
+
+}
+
+
+function addCustom(){
+
+  const input =
+    $("customCategoryInput");
+
+  const value =
+    input.value
+      .trim()
+      .replace(/\s+/g," ");
+
+  if(!value) return;
+
+  if(
+    allCategories()
+      .some(
+        c=>
+          c.toLowerCase()===
+          value.toLowerCase()
+      )
+  ){
+
+    $("categoryError")
+      .textContent =
+      "That category is already in the list.";
+
+    return;
+
+  }
+
+  customCategories.push(value);
+
+  customCategories.sort(
+    (a,b)=>a.localeCompare(b)
+  );
+
+  localStorage.setItem(
+    "tappityCustomCategories",
+    JSON.stringify(customCategories)
+  );
+
+  if(categoryMode==="all"){
+    selectedCategories=
+      allCategories();
+  }
+
+  input.value="";
+
+  renderCategories();
+
+}
+
+
+function removeCustom(category){
+
+  customCategories =
+    customCategories
+      .filter(
+        x=>x!==category
+      );
+
+  selectedCategories =
+    selectedCategories
+      .filter(
+        x=>x!==category
+      );
+
+  localStorage.setItem(
+    "tappityCustomCategories",
+    JSON.stringify(customCategories)
+  );
+
+  renderCategories();
+
+}
+
+
+$("categoriesBtn").onclick =
+  openCategories;
+
+$("addCustomBtn").onclick =
+  addCustom;
+
+$("customCategoryInput")
+  .addEventListener(
+    "keydown",
+    e=>{
+      if(e.key==="Enter"){
+        addCustom();
+      }
+    }
+  );
+
+
+document
+  .querySelectorAll(
+    'input[name="categoryMode"]'
+  )
+  .forEach(
+    radio=>{
+
+      radio.onchange =
+        e=>{
+
+          categoryMode =
+            e.target.value;
+
+          selectedCategories =
+            categoryMode==="all"
+              ? allCategories()
+              : [];
+
+          renderCategories();
+
+        };
+
+    }
+  );
+
+
+$("categoriesBack").onclick =
+  ()=>{
+
+    if(
+      categoryMode==="choose" &&
+      selectedCategories.length===0
+    ){
+
+      $("categoryError")
+        .textContent =
+        "Choose at least one category.";
+
+      return;
+
+    }
+
+    showScreen("mainScreen");
+
+  };
+
+
+/* BOARD */
+
+const letters =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    .split("");
+
+
+function buildBoard(){
+
+  const board =
+    $("board");
+
+  letters.forEach(
+    (letter,index)=>{
+
+      const button =
+        document.createElement("button");
+
+      button.className =
+        "letter";
+
+      button.textContent =
+        letter;
+
+      button.dataset.letter =
+        letter;
+
+      button.style
+        .setProperty(
+          "--angle",
+          `${index*(360/26)}deg`
+        );
+
+      button.style
+        .setProperty(
+          "--radius",
+          "min(40vw,35dvh,285px)"
+        );
+
+      button.onclick =
+        ()=>letterClicked(letter);
+
+      board.insertBefore(
+        button,
+        $("centerBuzzer")
+      );
+
+    }
+  );
+
+}
+
+
+function buttonFor(letter){
+
+  return document.querySelector(
+    `.letter[data-letter="${letter}"]`
+  );
+
+}
+
+
+function clearSoloSelection(){
+
+  selectedSoloLetter =
+    null;
+
+  document
+    .querySelectorAll(".letter")
+    .forEach(
+      btn=>
+        btn.classList
+          .remove("selected")
+    );
+
+  $("soloAnswerPanel")
+    .classList
+    .remove("active");
+
+  $("soloInput").value="";
+
+  $("soloMessage")
+    .textContent="";
+
+}
+
+
+function markLetterUsed(letter){
+
+  usedLetters.add(letter);
+
+  const btn =
+    buttonFor(letter);
+
+  btn.classList.remove("selected");
+  btn.classList.add("used");
+  btn.disabled=true;
+
+}
+
+
+function resetAlphabet(){
+
+  usedLetters.clear();
+
+  alphabetExhausted=false;
+
+  clearSoloSelection();
+
+  document
+    .querySelectorAll(".letter")
+    .forEach(
+      btn=>{
+
+        btn.classList.remove("used");
+        btn.disabled =
+          gameState!=="running";
+
+      }
+    );
+
+}
+
+
+function setLettersForState(){
+
+  document
+    .querySelectorAll(".letter")
+    .forEach(
+      btn=>{
+
+        const letter =
+          btn.dataset.letter;
+
+        btn.disabled =
+          gameState!=="running" ||
+          usedLetters.has(letter);
+
+      }
+    );
+
+}
+
+
+function letterClicked(letter){
+
+  if(
+    gameState!=="running" ||
+    usedLetters.has(letter)
+  ){
+    return;
+  }
+
+
+  if(gameMode==="multi"){
+
+    buttonSound();
+
+    markLetterUsed(letter);
+
+    if(usedLetters.size===26){
+
+      alphabetExhausted=true;
+
+      $("gameStatus")
+        .textContent =
+        "Alphabet complete — press the buzzer to refresh A–Z.";
+
+    }
+
+    return;
+
+  }
+
+
+  /* SOLO */
+
+  buttonSound();
+
+  document
+    .querySelectorAll(".letter")
+    .forEach(
+      btn=>
+        btn.classList.remove("selected")
+    );
+
+  selectedSoloLetter =
+    letter;
+
+  buttonFor(letter)
+    .classList
+    .add("selected");
+
+  $("soloSelectedLabel")
+    .textContent =
+    `Selected: ${letter}`;
+
+  $("soloInput")
+    .placeholder =
+    `${letter} answer…`;
+
+  $("soloAnswerPanel")
+    .classList
+    .add("active");
+
+  $("soloMessage")
+    .textContent="";
+
+  $("soloInput").value="";
+
+  setTimeout(
+    ()=>{
+
+      $("soloInput").focus({
+        preventScroll:true
+      });
+
+    },
+    40
+  );
+
+}
+
+
+/* GAME */
+
+function updateSettings(){
+
+  gameMode =
+    document.querySelector(
+      'input[name="gameMode"]:checked'
+    ).value;
+
+  timerLength =
+    Number(
+      document.querySelector(
+        'input[name="timer"]:checked'
+      ).value
+    );
+
+}
+
+
+function pickCategory(){
+
+  const pool =
+    selectedCategories.length
+      ? selectedCategories
+      : allCategories();
+
+  if(pool.length===1){
+    return pool[0];
+  }
+
+  let choice;
+
+  do{
+
+    choice =
+      pool[
+        Math.floor(
+          Math.random()*pool.length
+        )
+      ];
+
+  }
+  while(
+    choice===previousCategory
+  );
+
+  previousCategory =
+    choice;
+
+  return choice;
+
+}
+
+
+function prepareRound(){
+
+  cancelAnimationFrame(
+    timerRAF
+  );
+
+  timerRAF=null;
+
+  updateSettings();
+
+  gameState="ready";
+
+  soloScore=0;
+
+  currentCategory=
+    pickCategory();
+
+  $("categoryName")
+    .textContent=
+    currentCategory;
+
+  $("soloScore")
+    .textContent="0";
+
+  $("soloBest")
+    .textContent=
+    soloBest;
+
+  $("gameScreen")
+    .classList
+    .toggle(
+      "solo-mode",
+      gameMode==="solo"
+    );
+
+  $("soloArea")
+    .classList
+    .toggle(
+      "active",
+      gameMode==="solo"
+    );
+
+  resetAlphabet();
+
+  document
+    .querySelectorAll(".letter")
+    .forEach(
+      btn=>btn.disabled=true
+    );
+
+  $("centerBuzzer")
+    .className =
+    "center-buzzer small-text";
+
+  $("centerBuzzer")
+    .disabled=false;
+
+  $("centerBuzzer")
+    .textContent="START";
+
+  $("newRoundBtn")
+    .classList.add("hidden");
+
+  $("gameStatus")
+    .textContent =
+    gameMode==="solo"
+      ? "Press START when you're ready."
+      : "Press START when everyone is ready.";
+
+}
+
+
+$("playBtn").onclick =
+  ()=>{
+
+    ensureAudio();
+
+    showScreen("gameScreen");
+
+    prepareRound();
+
+  };
+
+
+/* COUNTDOWN */
+
+function showCountdown(){
+
+  if(gameState!=="ready") return;
+
+  gameState="countdown";
+
+  $("centerBuzzer")
+    .disabled=true;
+
+  const overlay =
+    $("countOverlay");
+
+  const text =
+    $("countText");
+
+  overlay
+    .classList.remove("hidden");
+
+  const sequence =
+    ["3","2","1","GO!"];
+
+  let index=0;
+
+  const step =
+    ()=>{
+
+      text.textContent =
+        sequence[index];
+
+      text.style.animation="none";
+
+      void text.offsetWidth;
+
+      text.style.animation =
+        "pop .65s ease both";
+
+      if(index<3){
+        tickSound();
+      }
+      else{
+        buttonSound();
+      }
+
+      index++;
+
+      if(index<sequence.length){
+
+        setTimeout(
+          step,
+          700
+        );
+
+      }
+
+      else{
+
+        setTimeout(
+          ()=>{
+
+            overlay
+              .classList.add("hidden");
+
+            startTimer(
+              timerLength*1000
+            );
+
+          },
+          650
+        );
+
+      }
+
+    };
+
+  step();
+
+}
+
+
+/* TIMER */
+
+function startTimer(milliseconds){
+
+  gameState="running";
+
+  timerEnd =
+    performance.now() +
+    milliseconds;
+
+  lastTickNumber=null;
+
+  $("centerBuzzer")
+    .disabled=false;
+
+  $("centerBuzzer")
+    .classList.remove("small-text");
+
+  if(gameMode==="solo"){
+
+    $("centerBuzzer")
+      .classList.add("solo-timer");
+
+    $("gameStatus")
+      .textContent =
+      selectedSoloLetter
+        ? `Enter an answer beginning with ${selectedSoloLetter}.`
+        : "Choose a letter.";
+
+  }
+
+  else{
+
+    $("centerBuzzer")
+      .classList.remove("solo-timer");
+
+    $("gameStatus")
+      .textContent =
+      "Answer → tap your letter → press the buzzer.";
+
+  }
+
+  setLettersForState();
+
+  runTimer();
+
+}
+
+
+function runTimer(){
+
+  cancelAnimationFrame(
+    timerRAF
+  );
+
+  const loop =
+    now=>{
+
+      if(gameState!=="running"){
+        return;
+      }
+
+      const remaining =
+        Math.max(
+          0,
+          timerEnd-now
+        );
+
+      const display =
+        Math.ceil(
+          remaining/1000
+        );
+
+      $("centerBuzzer")
+        .textContent =
+        display;
+
+      if(
+        display!==lastTickNumber &&
+        display>0
+      ){
+
+        if(lastTickNumber!==null){
+          tickSound();
+        }
+
+        lastTickNumber =
+          display;
+
+      }
+
+      if(remaining<=0){
+
+        timeUp();
+        return;
+
+      }
+
+      timerRAF =
+        requestAnimationFrame(loop);
+
+    };
+
+  timerRAF =
+    requestAnimationFrame(loop);
+
+}
+
+
+/* CENTER BUZZER */
+
+$("centerBuzzer").onclick =
+  ()=>{
+
+    ensureAudio();
+
+    if(gameState==="ready"){
+
+      showCountdown();
+      return;
+
+    }
+
+    if(
+      gameState!=="running" ||
+      gameMode==="solo"
+    ){
+      return;
+    }
+
+    buttonSound();
+
+    if(alphabetExhausted){
+
+      resetAlphabet();
+
+    }
+
+    startTimer(
+      timerLength*1000
+    );
+
+  };
+
+
+/* SOLO */
+
+function submitSoloAnswer(){
+
+  if(
+    gameMode!=="solo" ||
+    gameState!=="running"
+  ){
+    return;
+  }
+
+  if(!selectedSoloLetter){
+
+    $("soloMessage")
+      .textContent =
+      "Choose a letter first.";
+
+    return;
+
+  }
+
+  const answer =
+    $("soloInput")
+      .value
+      .trim();
+
+  if(!answer){
+
+    $("soloMessage")
+      .textContent =
+      `Enter an answer beginning with ${selectedSoloLetter}.`;
+
+    return;
+
+  }
+
+  const firstLetter =
+    answer
+      .charAt(0)
+      .toUpperCase();
+
+  if(
+    firstLetter!==
+    selectedSoloLetter
+  ){
+
+    $("soloMessage")
+      .textContent =
+      `Your answer must start with ${selectedSoloLetter}.`;
+
+    $("soloInput").select();
+
+    return;
+
+  }
+
+  ensureAudio();
+
+  buttonSound();
+
+  markLetterUsed(
+    selectedSoloLetter
+  );
+
+  soloScore++;
+
+  if(soloScore>soloBest){
+
+    soloBest =
+      soloScore;
+
+    localStorage.setItem(
+      "tappitySoloBest",
+      String(soloBest)
+    );
+
+  }
+
+  $("soloScore")
+    .textContent =
+    soloScore;
+
+  $("soloBest")
+    .textContent =
+    soloBest;
+
+  clearSoloSelection();
+
+  if(usedLetters.size===26){
+
+    resetAlphabet();
+
+    $("soloMessage")
+      .textContent =
+      "Alphabet cleared — A–Z are available again!";
+
+    setTimeout(
+      ()=>{
+
+        if(
+          gameState==="running"
+        ){
+          $("soloMessage")
+            .textContent="";
+        }
+
+      },
+      1200
+    );
+
+  }
+
+  startTimer(
+    timerLength*1000
+  );
+
+}
+
+
+$("soloSubmit").onclick =
+  submitSoloAnswer;
+
+
+$("soloInput")
+  .addEventListener(
+    "keydown",
+    e=>{
+
+      if(e.key==="Enter"){
+
+        e.preventDefault();
+
+        submitSoloAnswer();
+
+      }
+
+    }
+  );
+
+
+/* TIME UP */
+
+function timeUp(){
+
+  cancelAnimationFrame(
+    timerRAF
+  );
+
+  timerRAF=null;
+
+  gameState="timeup";
+
+  document
+    .querySelectorAll(".letter")
+    .forEach(
+      btn=>btn.disabled=true
+    );
+
+  $("centerBuzzer")
+    .disabled=true;
+
+  $("centerBuzzer")
+    .classList.add("small-text");
+
+  $("centerBuzzer")
+    .textContent =
+    "TIME'S UP!";
+
+  $("gameStatus")
+    .textContent =
+    gameMode==="solo"
+      ? `Round over — ${soloScore} answer${soloScore===1?"":"s"}.`
+      : "Round over.";
+
+  $("newRoundBtn")
+    .classList.remove("hidden");
+
+  buzzSound();
+
+}
+
+
+$("newRoundBtn").onclick =
+  prepareRound;
+
+
+/* PAUSE */
+
+function openPause(){
+
+  if(gameState==="countdown"){
+    return;
+  }
+
+  if(gameState==="running"){
+
+    pausedRemainingMs =
+      Math.max(
+        0,
+        timerEnd-performance.now()
+      );
+
+    cancelAnimationFrame(timerRAF);
+
+    timerRAF=null;
+
+    gameState="paused";
+
+    document
+      .querySelectorAll(".letter")
+      .forEach(
+        btn=>btn.disabled=true
+      );
+
+  }
+
+  $("pauseModal")
+    .classList.remove("hidden");
+
+}
+
+
+$("pauseBtn").onclick =
+  openPause;
+
+
+$("resumeBtn").onclick =
+  ()=>{
+
+    $("pauseModal")
+      .classList.add("hidden");
+
+    if(gameState==="paused"){
+
+      startTimer(
+        pausedRemainingMs
+      );
+
+    }
+
+  };
+
+
+function askConfirm(
+  title,
+  text,
+  action
+){
+
+  $("confirmTitle")
+    .textContent=
+    title;
+
+  $("confirmText")
+    .textContent=
+    text;
+
+  confirmAction=
+    action;
+
+  $("confirmModal")
+    .classList.remove("hidden");
+
+}
+
+
+$("resetBtn").onclick =
+  ()=>{
+
+    askConfirm(
+      "Reset round?",
+      "This will choose a new category and reset the timer, alphabet, and Solo score.",
+      ()=>{
+
+        $("pauseModal")
+          .classList.add("hidden");
+
+        prepareRound();
+
+      }
+    );
+
+  };
+
+
+$("mainMenuBtn").onclick =
+  ()=>{
+
+    askConfirm(
+      "Return to main menu?",
+      "The current round will end.",
+      ()=>{
+
+        cancelAnimationFrame(timerRAF);
+
+        $("pauseModal")
+          .classList.add("hidden");
+
+        showScreen(
+          "mainScreen"
+        );
+
+      }
+    );
+
+  };
+
+
+$("confirmCancel").onclick =
+  ()=>{
+
+    $("confirmModal")
+      .classList.add("hidden");
+
+    confirmAction=null;
+
+  };
+
+
+$("confirmYes").onclick =
+  ()=>{
+
+    $("confirmModal")
+      .classList.add("hidden");
+
+    const action =
+      confirmAction;
+
+    confirmAction=null;
+
+    if(action){
+      action();
+    }
+
+  };
+
+
+/* INITIALIZE */
+
+buildBoard();
+renderCategories();
+
+$("soloBest")
+  .textContent=
+  soloBest;
+
+</script>
+
+</body>
+</html>
